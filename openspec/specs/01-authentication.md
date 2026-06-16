@@ -38,13 +38,40 @@ offres et candidatures lui soient rattachées (`user_id`).
 
 ## Critères d'acceptation
 
-- [ ] Un utilisateur peut s'inscrire avec email/mot de passe valides et est
+- [x] Un utilisateur peut s'inscrire avec email/mot de passe valides et est
   automatiquement connecté.
-- [ ] Un utilisateur peut se connecter avec des identifiants valides et est redirigé
+- [x] Un utilisateur peut se connecter avec des identifiants valides et est redirigé
   vers le dashboard des offres.
-- [ ] Un utilisateur déconnecté ne peut accéder à aucune offre/candidature/conversation.
-- [ ] Un utilisateur connecté ne voit que SES offres et candidatures (vérifié par test
+- [x] Un utilisateur déconnecté ne peut accéder à aucune offre/candidature/conversation.
+- [x] Un utilisateur connecté ne voit que SES offres et candidatures (vérifié par test
   manuel avec deux comptes).
+
+## Exigences structurées
+
+### Requirement: Auth implementation completeness
+The system SHALL implement all requirements defined in this spec as a first-class
+feature, including registration, login, logout, middleware protection, and
+user-scoped queries.
+
+#### Scenario: Registration flow implemented
+- **WHEN** a user submits the registration form with valid data (name, email, confirmed password)
+- **THEN** the system creates a new user with bcrypt-hashed password and logs them in
+
+#### Scenario: Login flow implemented
+- **WHEN** a user submits the login form with valid credentials
+- **THEN** the system authenticates them via the session guard and redirects to the dashboard
+
+#### Scenario: Logout flow implemented
+- **WHEN** an authenticated user submits a POST to `/logout`
+- **THEN** the system destroys their session and redirects to `/login`
+
+#### Scenario: Middleware protection applied
+- **WHEN** an unauthenticated user attempts to access any protected route
+- **THEN** the system redirects them to `/login`
+
+#### Scenario: User scoping enforced
+- **WHEN** an authenticated user queries `Offre` or `Candidature` records
+- **THEN** the system returns only records where `user_id` matches `auth()->id()`
 
 ## Dépendances
 
@@ -57,9 +84,9 @@ offres et candidatures lui soient rattachées (`user_id`).
 
 ## Workflow OpenSpec
 
-```
-opsx propose "Authentification : inscription, connexion, déconnexion, scoping user_id"
-opsx plan authentication
-opsx tasks authentication
-opsx implement authentication
+```bash
+opsx propose authentication
+opsx apply authentication
+opsx sync authentication
+opsx archive authentication
 ```

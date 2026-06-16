@@ -245,8 +245,8 @@ docker compose exec app php artisan tinker
 ## Workflow OpenSpec
 
 ```bash
-opsx propose "Tools laravel/ai : getCandidateAnalysis, getJobRequirements, compareCandidates avec scoping user_id"
-opsx plan tools-laravel-ai
-opsx tasks tools-laravel-ai
-opsx implement tools-laravel-ai
+opsx propose tools-larave-ia
+opsx apply tools-larave-ia
+opsx sync tools-larave-ia
+opsx archive tools-larave-ia
 ```

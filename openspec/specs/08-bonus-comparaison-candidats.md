@@ -54,8 +54,8 @@ une comparaison argumentée via l'assistant IA (tool `compareCandidates`).
 ## Workflow OpenSpec
 
 ```bash
-opsx propose "Bonus comparaison : sélection 2 candidats, message pré-rempli, appel compareCandidates via agent"
-opsx plan bonus-comparaison-candidats
-opsx tasks bonus-comparaison-candidats
-opsx implement bonus-comparaison-candidats
+opsx propose bonus-comparaison-candidats
+opsx apply bonus-comparaison-candidats
+opsx sync bonus-comparaison-candidats
+opsx archive bonus-comparaison-candidats
 ```

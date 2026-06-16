@@ -243,8 +243,8 @@ docker compose exec app php artisan queue:clear
 ## Workflow OpenSpec
 
 ```bash
-opsx propose "Analyse IA structurée : job queue, structured output laravel/ai, casts Eloquent, retry/fail"
-opsx plan analyse-ia
-opsx tasks analyse-ia
-opsx implement analyse-ia
+opsx propose analyse-ia
+opsx apply analyse-ia
+opsx sync analyse-ia
+opsx archive analyse-ia
 ```

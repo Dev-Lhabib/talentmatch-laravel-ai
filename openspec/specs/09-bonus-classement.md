@@ -67,8 +67,8 @@ public function scopeOrderedByScore(Builder $query): Builder
 ## Workflow OpenSpec
 
 ```bash
-opsx propose "Bonus classement : tri candidats par matching_score décroissant, scope Eloquent, zéro N+1"
-opsx plan bonus-classement
-opsx tasks bonus-classement
-opsx implement bonus-classement
+opsx propose bonus-classement
+opsx apply bonus-classement
+opsx sync bonus-classement
+opsx archive bonus-classement
 ```

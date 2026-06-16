@@ -154,8 +154,8 @@ public function conversation(): HasOne { ... }
 ## Workflow OpenSpec
 
 ```bash
-opsx propose "Candidatures : soumission CV texte, validation stricte, dispatch job queue, suivi statut"
-opsx plan candidatures
-opsx tasks candidatures
-opsx implement candidatures
+opsx propose candidatures
+opsx apply candidatures
+opsx sync candidatures
+opsx archive candidatures
 ```

@@ -151,8 +151,8 @@ tokens — à ajuster selon les contraintes du modèle utilisé.
 ## Workflow OpenSpec
 
 ```bash
-opsx propose "Mémoire de conversation : tables SDK laravel/ai, rattachement candidature_id, persistance messages, scoping user"
-opsx plan conversation-memory
-opsx tasks conversation-memory
-opsx implement conversation-memory
+opsx propose conversation-memory
+opsx apply conversation-memory
+opsx sync conversation-memory
+opsx archive conversation-memory
 ```

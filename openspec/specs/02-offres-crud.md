@@ -131,8 +131,8 @@ Route::middleware('auth')->group(function () {
 ## Workflow OpenSpec
 
 ```bash
-opsx propose "Offres CRUD : création, liste withCount, détail avec candidats et scores"
-opsx plan offres-crud
-opsx tasks offres-crud
-opsx implement offres-crud
+opsx propose offres-crud
+opsx apply offres-crud
+opsx sync offres-crud
+opsx archive offres-crud
 ```

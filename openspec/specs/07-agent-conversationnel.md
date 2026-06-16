@@ -209,8 +209,8 @@ Agent : [utilise la mémoire — le champ était dans la réponse précédente d
 ## Workflow OpenSpec
 
 ```bash
-opsx propose "Agent conversationnel : ChatController, system prompt anti-hallucination, tools + mémoire, vue chat"
-opsx plan agent-conversationnel
-opsx tasks agent-conversationnel
-opsx implement agent-conversationnel
+opsx propose agent-conversationnel
+opsx apply agent-conversationnel
+opsx sync agent-conversationnel
+opsx archive agent-conversationnel
 ```
