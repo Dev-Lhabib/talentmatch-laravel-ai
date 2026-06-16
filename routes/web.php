@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CandidatureController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\OffreController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,4 +24,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
     Route::resource('offres', OffreController::class);
     Route::resource('offres.candidatures', CandidatureController::class)->only(['store', 'show', 'destroy']);
+    Route::get('/offres/{offre}/candidatures/{candidature}/chat', [ChatController::class, 'show'])->name('chat.show');
+    Route::post('/offres/{offre}/candidatures/{candidature}/chat', [ChatController::class, 'store'])->name('chat.store');
 });
