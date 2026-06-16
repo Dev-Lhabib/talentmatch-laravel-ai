@@ -28,6 +28,7 @@
         <a href="/" style="border: none; font-weight: 500;">TalentMatch</a>
         <div style="display: flex; gap: 0.5rem;">
             @auth
+                <a href="{{ route('offres.index') }}">Offres</a>
                 <a href="{{ route('dashboard') }}">Dashboard</a>
                 <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                     @csrf
