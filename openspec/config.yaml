@@ -1,0 +1,107 @@
+# openspec/config.yaml
+# Configuration OpenSpec pour TalentMatch.
+# Adapter les chemins/commandes exactes à la version du CLI OpenSpec (opsx) installée.
+
+project:
+  name: TalentMatch
+  slug: talentmatch
+  description: >
+    Application Laravel de présélection automatisée de candidats avec agent IA
+    (structured output + tools + mémoire de conversation).
+  version: "0.1.0"
+  repository:
+    provider: github
+    url: "https://github.com/<org-or-user>/talentmatch-laravel"
+    default_branch: main
+    integration_branch: develop
+
+stack:
+  language: php
+  language_version: "8.3"
+  framework: laravel
+  framework_version: "13.x"
+  database:
+    driver: mysql
+    version: "8.0"
+  containerization: docker
+  packages:
+    ai_sdk: laravel/ai
+    dev:
+      - laravel/boost
+      - barryvdh/laravel-debugbar
+  queue:
+    driver: database   # adapter selon docker-compose (database | redis)
+
+paths:
+  openspec_root: openspec
+  specs: openspec/specs
+  changes: openspec/changes
+  taskboard: openspec/taskboard.md
+  agents_file: AGENTS.md
+  docs: docs
+
+workflow:
+  cli: opsx
+  stages:
+    - propose
+    - plan
+    - tasks
+    - implement
+  rules:
+    require_spec_before_code: true
+    require_human_review_before_implement: true
+    # Chaque spec doit documenter ce que la feature / l'agent NE DOIT PAS faire.
+    spec_must_define_out_of_scope: true
+
+ai:
+  structured_output:
+    enforced: true
+    schema_spec: openspec/specs/04-analyse-ia.md
+    on_schema_violation: retry_then_fail
+    max_retries: 3
+  agent:
+    requires_tools: true
+    requires_memory: true
+    # Toute réponse factuelle de l'agent doit provenir d'un appel de tool.
+    forbid_unsupported_factual_claims: true
+    tools:
+      - getCandidateAnalysis
+      - getJobRequirements
+      - compareCandidates
+
+git:
+  branch_prefix: "feature/"
+  commit_convention: conventional-commits
+  ai_mention_tag: "[AI-assisted]"
+  required_branches:
+    - main
+    - develop
+    - feature/authentication
+    - feature/offres-crud
+    - feature/candidatures
+    - feature/analyse-ia
+    - feature/tools-laravel-ai
+    - feature/conversation-memory
+    - feature/agent-conversationnel
+    - feature/bonus-comparaison-candidats
+    - feature/bonus-classement
+
+docker:
+  compose_file: docker-compose.yml
+  services:
+    app: app
+    db: db
+    queue: queue
+  exec_prefix: "docker compose exec app"
+
+quality_gates:
+  zero_n_plus_one: true
+  form_requests_required: true
+  eloquent_casts_required: true
+  enums_required:
+    - RecommandationEnum
+    - StatutCandidatureEnum
+  jira:
+    board_columns: ["To Do", "In Progress", "En validation", "Done"]
+    shared_with:
+      - abderahmane.merradou@gmail.com

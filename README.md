@@ -1,38 +1,49 @@
-# TalentMatch
+# TalentMatch — Assistant IA de Présélection RH
 
-TalentMatch is an AI-powered recruitment assistant built with Laravel 13 and PHP 8.3.
+Application Laravel de présélection automatisée de candidats, pilotée par un agent IA
+(`laravel/ai`) avec sortie structurée (structured output), tools Laravel et mémoire de
+conversation persistée.
 
-The platform helps HR teams automate candidate pre-screening by analyzing CVs against job offers using AI-powered structured outputs. It extracts candidate information, generates matching scores, identifies strengths and weaknesses, and provides hiring recommendations.
+## Démarrage
 
-The system also includes a conversational AI agent capable of using Laravel Tools and conversation memory to answer contextual questions about analyzed candidates.
+Voir `AGENTS.md` pour les conventions de développement et les garde-fous IA, et
+`openspec/` pour la spécification complète du projet (specs par feature, taskboard,
+configuration du workflow OpenSpec).
 
-## Core Features
+## Stack
 
-* Authentication and user management
-* Job offers management
-* Candidate CV submission
-* AI-powered structured candidate analysis
-* Matching score generation
-* Typed recommendations (Convoquer / Attente / Rejeter)
-* Background processing with Jobs & Queues
-* Laravel AI Tools (Function Calling)
-* Conversation Memory
-* Candidate comparison (Bonus)
-* Automatic ranking by matching score (Bonus)
+- Laravel 13 / PHP 8.3
+- MySQL 8
+- Docker (toute la stack — app, db, queue — tourne en conteneurs)
+- `laravel/ai` (structured output + agents + tools + conversation memory)
+- Laravel Boost (MCP server de développement)
 
-## Tech Stack
+## Organisation du dépôt
 
-* Laravel 13
-* PHP 8.3
-* MySQL
-* Docker
-* Laravel AI SDK
-* Laravel Boost
-* OpenSpec
-* Queue Workers
-* Eloquent Casts
-* GitHub & Jira
+```
+.
+├── AGENTS.md                 # règles pour les agents de code (Boost, etc.)
+├── README.md                 # ce fichier
+├── openspec/
+│   ├── config.yaml            # configuration du workflow OpenSpec
+│   ├── taskboard.md           # phases, tâches, priorités, dépendances
+│   ├── README.md              # organisation du dossier openspec/
+│   ├── specs/                  # 1 fichier = 1 feature
+│   └── changes/                # généré par `opsx propose` (espace de travail)
+├── docs/
+│   ├── branching-strategy.md   # stratégie de branches Git
+│   ├── workflow-commands.md    # commandes opsx + Docker
+│   ├── implementation-order.md # planning par phases/jours
+│   ├── architecture-decisions.md
+│   └── commit-strategy.md
+├── app/                        # code Laravel
+├── docker-compose.yml
+└── ...
+```
 
-## Development Workflow
+## Workflow
 
-The project follows an AI-Assisted Development workflow using OpenSpec specifications, Laravel Boost, AGENTS.md guidelines, and feature-based Git branching.
+1. Spec validée dans `openspec/specs/` avant tout code (`opsx propose/plan/tasks/implement`).
+2. Implémentation dans la branche `feature/*` correspondante (voir `docs/branching-strategy.md`).
+3. Commits quotidiens, mention `[AI-assisted]` quand pertinent (voir `docs/commit-strategy.md`).
+4. Merge vers `develop`, puis `develop` → `main` aux jalons.
