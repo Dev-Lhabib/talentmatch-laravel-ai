@@ -11,6 +11,7 @@ use App\Models\Candidature;
 use App\Models\Offre;
 use App\Services\ConversationService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ChatController extends Controller
@@ -19,14 +20,27 @@ class ChatController extends Controller
         private readonly ConversationService $conversationService,
     ) {}
 
-    public function show(Offre $offre, Candidature $candidature): View
+    public function show(Request $request, Offre $offre, Candidature $candidature): View
     {
         $this->authorizeAccess($offre, $candidature);
 
         $conversation = $this->conversationService->resolve($candidature);
         $messages = $conversation->messages()->orderBy('created_at')->get();
 
-        return view('chat.show', compact('offre', 'candidature', 'conversation', 'messages'));
+        $compareId = null;
+        if ($request->has('compare')) {
+            $compareId = (int) $request->input('compare');
+            $compareCandidature = Candidature::where('id', $compareId)
+                ->where('offre_id', $offre->id)
+                ->where('status', StatutCandidatureEnum::Completed)
+                ->first();
+
+            if (! $compareCandidature || $compareCandidature->id === $candidature->id) {
+                $compareId = null;
+            }
+        }
+
+        return view('chat.show', compact('offre', 'candidature', 'conversation', 'messages', 'compareId'));
     }
 
     public function store(

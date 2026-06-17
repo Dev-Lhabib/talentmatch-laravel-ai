@@ -45,50 +45,90 @@
     </div>
 
     <div>
-        <h2 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">
-            Candidatures ({{ $offre->candidatures_count }})
-        </h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2 style="font-size: 1.125rem; font-weight: 600;">
+                Candidatures ({{ $offre->candidatures_count }})
+            </h2>
+            <button
+                type="button"
+                id="compare-btn"
+                class="btn"
+                style="font-size: 0.875rem; background: #7c3aed; color: white; display: none;"
+                onclick="compareSelected()"
+            >
+                Comparer ces deux candidats
+            </button>
+        </div>
 
         @if($offre->candidatures->isEmpty())
             <p style="color: #6b7280;">Aucune candidature pour le moment.</p>
         @else
             <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                 @foreach($offre->candidatures as $candidature)
-                    <a href="{{ route('offres.candidatures.show', [$offre, $candidature]) }}" style="display: block; padding: 1rem; border: 1px solid #e3e3e0; border-radius: 2px; text-decoration: none; color: inherit;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <h3 style="font-size: 0.875rem; font-weight: 500;">{{ $candidature->nom_candidat }}</h3>
-                                <p style="font-size: 0.75rem; color: #6b7280;">
-                                    Soumise le {{ $candidature->created_at->format('d/m/Y') }}
-                                </p>
+                    <div style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; border: 1px solid #e3e3e0; border-radius: 2px;">
+                        <input
+                            type="checkbox"
+                            class="candidature-checkbox"
+                            value="{{ $candidature->id }}"
+                            data-completed="{{ $candidature->status->value === 'completed' ? '1' : '0' }}"
+                            style="width: 1.25rem; height: 1.25rem; cursor: pointer; accent-color: #7c3aed;"
+                            @if($candidature->status->value !== 'completed') disabled title="Analyse non terminée" @endif
+                        >
+                        <a href="{{ route('offres.candidatures.show', [$offre, $candidature]) }}" style="flex: 1; text-decoration: none; color: inherit;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h3 style="font-size: 0.875rem; font-weight: 500;">{{ $candidature->nom_candidat }}</h3>
+                                    <p style="font-size: 0.75rem; color: #6b7280;">
+                                        Soumise le {{ $candidature->created_at->format('d/m/Y') }}
+                                    </p>
+                                </div>
+                                <div style="text-align: right;">
+                                    @if($candidature->analyse)
+                                        <span style="font-size: 1.25rem; font-weight: 600;">{{ $candidature->analyse->matching_score }}/100</span>
+                                        <br>
+                                        <span style="font-size: 0.75rem; padding: 0.125rem 0.375rem;
+                                            @if($candidature->analyse->recommandation->value === 'convoquer')
+                                                background: #dcfce7; color: #166534;
+                                            @elseif($candidature->analyse->recommandation->value === 'attente')
+                                                background: #fef9c3; color: #854d0e;
+                                            @else
+                                                background: #fee2e2; color: #991b1b;
+                                            @endif
+                                            border-radius: 2px;">
+                                            {{ ucfirst($candidature->analyse->recommandation->value) }}
+                                        </span>
+                                    @elseif($candidature->status->value === 'failed')
+                                        <span style="font-size: 0.75rem; padding: 0.125rem 0.375rem; background: #fee2e2; color: #991b1b; border-radius: 2px;">⚠️ Échouée</span>
+                                    @else
+                                        <span style="font-size: 0.875rem; color: #6b7280;">En attente</span>
+                                    @endif
+                                </div>
                             </div>
-                            <div style="text-align: right;">
-                                @if($candidature->analyse)
-                                    <span style="font-size: 1.25rem; font-weight: 600;">{{ $candidature->analyse->matching_score }}/100</span>
-                                    <br>
-                                    <span style="font-size: 0.75rem; padding: 0.125rem 0.375rem;
-                                        @if($candidature->analyse->recommandation->value === 'convoquer')
-                                            background: #dcfce7; color: #166534;
-                                        @elseif($candidature->analyse->recommandation->value === 'attente')
-                                            background: #fef9c3; color: #854d0e;
-                                        @else
-                                            background: #fee2e2; color: #991b1b;
-                                        @endif
-                                        border-radius: 2px;">
-                                        {{ ucfirst($candidature->analyse->recommandation->value) }}
-                                    </span>
-                                @elseif($candidature->status->value === 'failed')
-                                    <span style="font-size: 0.75rem; padding: 0.125rem 0.375rem; background: #fee2e2; color: #991b1b; border-radius: 2px;">⚠️ Échouée</span>
-                                @else
-                                    <span style="font-size: 0.875rem; color: #6b7280;">En attente</span>
-                                @endif
-                            </div>
-                        </div>
-                    </a>
+                        </a>
+                    </div>
                 @endforeach
             </div>
         @endif
     </div>
+
+    <script>
+        function compareSelected() {
+            const checked = document.querySelectorAll('.candidature-checkbox:checked');
+            if (checked.length === 2) {
+                const id1 = checked[0].value;
+                const id2 = checked[1].value;
+                window.location.href = '{{ route('chat.show', [$offre, '__ID__']) }}'.replace('__ID__', id1) + '?compare=' + id2;
+            }
+        }
+
+        document.querySelectorAll('.candidature-checkbox').forEach(function(cb) {
+            cb.addEventListener('change', function() {
+                const checked = document.querySelectorAll('.candidature-checkbox:checked');
+                const btn = document.getElementById('compare-btn');
+                btn.style.display = checked.length === 2 ? 'inline-block' : 'none';
+            });
+        });
+    </script>
 
     <div style="margin-top: 2rem; padding: 1rem; border: 1px solid #e3e3e0; border-radius: 2px;">
         <h2 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">Soumettre un CV</h2>

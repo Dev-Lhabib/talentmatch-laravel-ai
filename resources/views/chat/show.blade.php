@@ -78,7 +78,7 @@
                 minlength="2"
                 maxlength="2000"
                 style="flex: 1; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 2px; font-size: 0.875rem; resize: none;"
-            >{{ old('message') }}</textarea>
+            >{{ old('message', isset($compareId) && $compareId ? "Compare ce candidat avec le candidat #{$compareId}" : '') }}</textarea>
             <button type="submit" class="btn" style="align-self: flex-end;">Envoyer</button>
         </div>
         @error('message')

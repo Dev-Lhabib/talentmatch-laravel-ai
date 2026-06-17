@@ -13,6 +13,10 @@ The system SHALL provide a chat interface for conversing with the AI agent about
 - **WHEN** an authenticated offer owner visits the chat URL for a candidature with status `completed`
 - **THEN** the system displays the chat view with message history, input form, and candidate info
 
+#### Scenario: Chat page supports comparison context
+- **WHEN** the chat URL includes a `compare` query parameter with a valid candidature ID
+- **THEN** the system pre-fills the message input with "Compare ce candidat avec le candidat #{id}" (visible to user for editing before submission)
+
 #### Scenario: Chat access for non-completed candidature returns 422
 - **WHEN** an authenticated offer owner visits the chat URL for a candidature with status other than `completed`
 - **THEN** the system returns a 422 error indicating analysis must be completed first
