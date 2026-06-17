@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\StatutCandidatureEnum;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -45,5 +46,14 @@ class Candidature extends Model
     public function conversation(): HasOne
     {
         return $this->hasOne(Conversation::class);
+    }
+
+    public function scopeOrderedByScore(Builder $query): Builder
+    {
+        return $query
+            ->leftJoin('analyses', 'analyses.candidature_id', '=', 'candidatures.id')
+            ->orderByDesc('analyses.matching_score')
+            ->orderBy('candidatures.created_at')
+            ->select('candidatures.*');
     }
 }

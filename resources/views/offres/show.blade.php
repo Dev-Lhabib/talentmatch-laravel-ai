@@ -64,7 +64,11 @@
             <p style="color: #6b7280;">Aucune candidature pour le moment.</p>
         @else
             <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                @php $rank = 0; @endphp
                 @foreach($offre->candidatures as $candidature)
+                    @if($candidature->analyse)
+                        @php $rank++; @endphp
+                    @endif
                     <div style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; border: 1px solid #e3e3e0; border-radius: 2px;">
                         <input
                             type="checkbox"
@@ -74,6 +78,23 @@
                             style="width: 1.25rem; height: 1.25rem; cursor: pointer; accent-color: #7c3aed;"
                             @if($candidature->status->value !== 'completed') disabled title="Analyse non terminée" @endif
                         >
+                        @if($candidature->analyse)
+                            <span style="font-size: 0.875rem; font-weight: 600; min-width: 2rem; text-align: center;
+                                @if($rank === 1) color: #b45309;
+                                @elseif($rank === 2) color: #6b7280;
+                                @elseif($rank === 3) color: #92400e;
+                                @else color: #9ca3af;
+                                @endif
+                            ">
+                                @if($rank === 1) 🥇
+                                @elseif($rank === 2) 🥈
+                                @elseif($rank === 3) 🥉
+                                @else #{{ $rank }}
+                                @endif
+                            </span>
+                        @else
+                            <span style="min-width: 2rem;"></span>
+                        @endif
                         <a href="{{ route('offres.candidatures.show', [$offre, $candidature]) }}" style="flex: 1; text-decoration: none; color: inherit;">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <div>

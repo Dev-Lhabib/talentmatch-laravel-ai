@@ -39,6 +39,10 @@ The system SHALL display offer details including candidatures with analysis scor
 - **WHEN** an authenticated user visits GET /offres/{offre}
 - **THEN** the system returns the offer with its competences, and candidatures eager loaded with their analyses (matching_score, recommandation)
 
+#### Scenario: Candidatures displayed with score, status, and rank
+- **WHEN** an authenticated offer owner views the offer detail page
+- **THEN** the system displays candidatures sorted by score with their scores, status badges, and rank indicators
+
 #### Scenario: Pending candidature badge
 - **WHEN** a candidature has no analysis yet
 - **THEN** the system displays "En attente" instead of a score

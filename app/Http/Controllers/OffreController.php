@@ -56,8 +56,10 @@ class OffreController extends Controller
     {
         $this->authorize('view', $offre);
 
+        $offre->load('competences');
+
         $offre->load([
-            'competences',
+            'candidatures' => fn ($q) => $q->orderedByScore(),
             'candidatures.analyse' => fn ($q) => $q->select('candidature_id', 'matching_score', 'recommandation'),
         ]);
 
