@@ -33,6 +33,20 @@ class AnalyseCandidatJob implements ShouldQueue
     {
         $this->candidature->update(['status' => StatutCandidatureEnum::Processing]);
 
+        $provider = config('ai.default', 'groq');
+        $apiKeyEnv = strtoupper($provider).'_API_KEY';
+
+        if (! env($apiKeyEnv)) {
+            $this->candidature->update(['status' => StatutCandidatureEnum::Failed]);
+            Log::error('AnalyseCandidatJob: AI provider API key not configured', [
+                'candidature_id' => $this->candidature->id,
+                'provider' => $provider,
+                'expected_env_var' => $apiKeyEnv,
+            ]);
+
+            return;
+        }
+
         try {
             $result = $service->analyser($this->candidature);
 

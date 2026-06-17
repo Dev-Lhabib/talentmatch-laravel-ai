@@ -13,7 +13,8 @@ return [
     |
     */
 
-    'default' => 'openai',
+    'default' => env('AI_DEFAULT_PROVIDER', 'groq'),
+    'default_model' => env('AI_MODEL'),
     'default_for_images' => 'gemini',
     'default_for_audio' => 'openai',
     'default_for_transcription' => 'openai',

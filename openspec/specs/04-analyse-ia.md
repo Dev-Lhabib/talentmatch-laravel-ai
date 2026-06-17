@@ -23,6 +23,48 @@ applicatif.
 - Vue détail candidat : score, points forts, lacunes, compétences manquantes,
   recommandation, justification.
 
+## Configuration IA (ajouté via fix-ai-provider-configuration)
+
+### Requirement: Agent provider configuration
+The system SHALL resolve the AI provider for `AnalyseCandidatAgent` from the `AI_DEFAULT_PROVIDER` environment variable. If not set, the agent SHALL default to `groq`.
+
+#### Scenario: Provider resolved from env var
+- **WHEN** `AI_DEFAULT_PROVIDER` is set to a valid provider name (e.g., `groq`, `openai`)
+- **THEN** the agent uses that provider for all analysis calls
+
+#### Scenario: Default provider fallback
+- **WHEN** `AI_DEFAULT_PROVIDER` is not set
+- **THEN** the agent uses `groq` as the default provider
+
+### Requirement: Agent model configuration
+The system SHALL resolve the model for `AnalyseCandidatAgent` from the `AI_MODEL` environment variable. If not set, the agent SHALL use a provider-appropriate default model.
+
+#### Scenario: Model resolved from env var
+- **WHEN** `AI_MODEL` is set to a valid model name
+- **THEN** the agent uses that model for all analysis calls
+
+#### Scenario: Default model fallback
+- **WHEN** `AI_MODEL` is not set
+- **THEN** the agent uses the provider's default text model
+
+### Requirement: Configuration validation at dispatch
+The system SHALL validate that the AI provider configuration is present before attempting an analysis call. If the API key for the configured provider is missing, the job SHALL fail immediately without retries.
+
+#### Scenario: Missing API key detected
+- **WHEN** the analysis job runs and the API key for the configured provider is not set in the environment
+- **THEN** the job marks the candidature as `failed`, logs a configuration error message, and does NOT retry
+
+#### Scenario: Valid configuration
+- **WHEN** the analysis job runs and the API key for the configured provider is present
+- **THEN** the job proceeds with the AI analysis as normal
+
+### Requirement: Environment variable documentation
+The `.env.example` file SHALL document all AI-related environment variables with clear comments explaining their purpose and valid values.
+
+#### Scenario: Developer setup
+- **WHEN** a developer copies `.env.example` to `.env`
+- **THEN** they can see which AI provider keys are available and configure at least one
+
 ## Hors périmètre / Ce que l'implémentation ne doit PAS faire
 
 - **Jamais** calculer `matching_score`, `recommandation` ou toute autre sortie via
@@ -229,6 +271,11 @@ docker compose exec app php artisan queue:clear
 - [ ] La vue détail affiche score, recommandation, points forts, lacunes, manquantes et
   justification de façon lisible.
 - [ ] Offre sans `competences_requises` → analyse cohérente produite.
+- [ ] Le provider IA est résolu via `AI_DEFAULT_PROVIDER` (défaut : `groq`).
+- [ ] Le modèle IA est résolu via `AI_MODEL` (défaut : modèle du provider).
+- [ ] Si la clé API du provider configuré est absente, le job échoue immédiatement
+  sans retry avec un message de log clair.
+- [ ] `.env.example` documente toutes les variables d'environnement IA requises.
 
 ## Dépendances
 

@@ -13,6 +13,7 @@ use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Conversational;
 use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Contracts\HasTools;
+use Laravel\Ai\Enums\Lab;
 use Laravel\Ai\Messages\Message;
 use Laravel\Ai\Promptable;
 
@@ -23,6 +24,16 @@ class AnalyseCandidatAgent implements Agent, Conversational, HasStructuredOutput
     public function __construct(
         public ?Conversation $conversation = null,
     ) {}
+
+    public function provider(): Lab
+    {
+        return Lab::from(config('ai.default', 'groq'));
+    }
+
+    public function model(): ?string
+    {
+        return config('ai.default_model');
+    }
 
     public function instructions(): string
     {
