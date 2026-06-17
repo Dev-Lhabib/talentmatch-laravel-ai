@@ -1,43 +1,49 @@
 @extends('layouts.app')
 
 @section('content')
-    <div style="margin-bottom: 1.5rem;">
-        <a href="{{ route('offres.index') }}" class="link" style="font-size: 0.875rem;">← Retour à mes offres</a>
+    <div class="mb-4">
+        <a href="{{ route('offres.index') }}" class="text-sm text-accent hover:underline">← Retour à mes offres</a>
     </div>
 
-    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1.5rem;">
+    <div class="mb-6 flex items-start justify-between">
         <div>
-            <h1 style="font-size: 1.5rem; font-weight: 600;">{{ $offre->titre }}</h1>
-            <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;">
+            <h1 class="text-xl font-semibold text-white">{{ $offre->titre }}</h1>
+            <p class="mt-1 text-sm text-text-secondary">
                 Créée le {{ $offre->created_at->format('d/m/Y') }}
             </p>
         </div>
-        <div style="display: flex; gap: 0.5rem;">
-            <a href="{{ route('offres.edit', $offre) }}" class="btn" style="font-size: 0.875rem;">Modifier</a>
-            <form method="POST" action="{{ route('offres.destroy', $offre) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette offre ?');" style="display: inline;">
+        <div class="flex gap-2">
+            <a href="{{ route('offres.edit', $offre) }}" class="rounded-lg border border-border px-3 py-1.5 text-sm text-text-secondary transition hover:bg-card-hover hover:text-white">
+                Modifier
+            </a>
+            <form method="POST" action="{{ route('offres.destroy', $offre) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette offre ?');" class="inline">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn" style="font-size: 0.875rem; background: #dc2626;">Supprimer</button>
+                <button type="submit" class="rounded-lg bg-accent/80 px-3 py-1.5 text-sm text-white transition hover:bg-accent">
+                    Supprimer
+                </button>
             </form>
         </div>
     </div>
 
-    <div style="padding: 1rem; border: 1px solid #e3e3e0; border-radius: 2px; margin-bottom: 1.5rem;">
-        <h2 style="font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem;">Description</h2>
-        <p style="font-size: 0.875rem; line-height: 1.6;">{{ $offre->description }}</p>
+    <div class="mb-6 rounded-xl border border-border bg-card p-5">
+        <h2 class="mb-2 text-sm font-semibold text-white">Description</h2>
+        <p class="text-sm leading-relaxed text-text-secondary">{{ $offre->description }}</p>
 
-        <div style="margin-top: 1rem;">
-            <span style="font-size: 0.875rem; color: #6b7280;">
+        <div class="mt-3">
+            <span class="text-sm text-text-secondary">
                 Expérience minimum : {{ $offre->experience_min }} an{{ $offre->experience_min > 1 ? 's' : '' }}
             </span>
         </div>
 
         @if($offre->competences->isNotEmpty())
-            <div style="margin-top: 1rem;">
-                <span style="font-size: 0.875rem; font-weight: 500;">Compétences requises :</span>
-                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.25rem;">
+            <div class="mt-3">
+                <span class="text-sm font-medium text-white">Compétences requises :</span>
+                <div class="mt-1.5 flex flex-wrap gap-1.5">
                     @foreach($offre->competences as $competence)
-                        <span style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #f3f4f6; border-radius: 2px;">{{ $competence->nom }}</span>
+                        <span class="inline-flex items-center rounded-full bg-bg px-2.5 py-0.5 text-xs text-text-secondary border border-border">
+                            {{ $competence->nom }}
+                        </span>
                     @endforeach
                 </div>
             </div>
@@ -45,15 +51,14 @@
     </div>
 
     <div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h2 style="font-size: 1.125rem; font-weight: 600;">
+        <div class="mb-4 flex items-center justify-between">
+            <h2 class="text-base font-semibold text-white">
                 Candidatures ({{ $offre->candidatures_count }})
             </h2>
             <button
                 type="button"
                 id="compare-btn"
-                class="btn"
-                style="font-size: 0.875rem; background: #7c3aed; color: white; display: none;"
+                class="hidden rounded-lg bg-accent px-3 py-1.5 text-sm text-white transition hover:bg-accent/80"
                 onclick="compareSelected()"
             >
                 Comparer ces deux candidats
@@ -61,29 +66,28 @@
         </div>
 
         @if($offre->candidatures->isEmpty())
-            <p style="color: #6b7280;">Aucune candidature pour le moment.</p>
+            <p class="text-text-secondary">Aucune candidature pour le moment.</p>
         @else
-            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <div class="space-y-2">
                 @php $rank = 0; @endphp
                 @foreach($offre->candidatures as $candidature)
                     @if($candidature->analyse)
                         @php $rank++; @endphp
                     @endif
-                    <div style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; border: 1px solid #e3e3e0; border-radius: 2px;">
+                    <div class="flex items-center gap-3 rounded-xl border border-border bg-card p-4">
                         <input
                             type="checkbox"
-                            class="candidature-checkbox"
+                            class="candidature-checkbox h-5 w-5 cursor-pointer accent-accent"
                             value="{{ $candidature->id }}"
                             data-completed="{{ $candidature->status->value === 'completed' ? '1' : '0' }}"
-                            style="width: 1.25rem; height: 1.25rem; cursor: pointer; accent-color: #7c3aed;"
                             @if($candidature->status->value !== 'completed') disabled title="Analyse non terminée" @endif
                         >
                         @if($candidature->analyse)
-                            <span style="font-size: 0.875rem; font-weight: 600; min-width: 2rem; text-align: center;
-                                @if($rank === 1) color: #b45309;
-                                @elseif($rank === 2) color: #6b7280;
-                                @elseif($rank === 3) color: #92400e;
-                                @else color: #9ca3af;
+                            <span class="min-w-[2rem] text-center text-sm font-bold
+                                @if($rank === 1) text-yellow-500
+                                @elseif($rank === 2) text-gray-400
+                                @elseif($rank === 3) text-orange-700
+                                @else text-text-secondary
                                 @endif
                             ">
                                 @if($rank === 1) 🥇
@@ -93,35 +97,25 @@
                                 @endif
                             </span>
                         @else
-                            <span style="min-width: 2rem;"></span>
+                            <span class="min-w-[2rem]"></span>
                         @endif
-                        <a href="{{ route('offres.candidatures.show', [$offre, $candidature]) }}" style="flex: 1; text-decoration: none; color: inherit;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <a href="{{ route('offres.candidatures.show', [$offre, $candidature]) }}" class="flex-1 text-decoration-none">
+                            <div class="flex items-center justify-between">
                                 <div>
-                                    <h3 style="font-size: 0.875rem; font-weight: 500;">{{ $candidature->nom_candidat }}</h3>
-                                    <p style="font-size: 0.75rem; color: #6b7280;">
+                                    <h3 class="text-sm font-medium text-white">{{ $candidature->nom_candidat }}</h3>
+                                    <p class="text-xs text-text-secondary">
                                         Soumise le {{ $candidature->created_at->format('d/m/Y') }}
                                     </p>
                                 </div>
-                                <div style="text-align: right;">
+                                <div class="text-right">
                                     @if($candidature->analyse)
-                                        <span style="font-size: 1.25rem; font-weight: 600;">{{ $candidature->analyse->matching_score }}/100</span>
+                                        <span class="text-lg font-bold text-white">{{ $candidature->analyse->matching_score }}/100</span>
                                         <br>
-                                        <span style="font-size: 0.75rem; padding: 0.125rem 0.375rem;
-                                            @if($candidature->analyse->recommandation->value === 'convoquer')
-                                                background: #dcfce7; color: #166534;
-                                            @elseif($candidature->analyse->recommandation->value === 'attente')
-                                                background: #fef9c3; color: #854d0e;
-                                            @else
-                                                background: #fee2e2; color: #991b1b;
-                                            @endif
-                                            border-radius: 2px;">
-                                            {{ ucfirst($candidature->analyse->recommandation->value) }}
-                                        </span>
+                                        <x-status-badge :status="$candidature->analyse->recommandation->value" />
                                     @elseif($candidature->status->value === 'failed')
-                                        <span style="font-size: 0.75rem; padding: 0.125rem 0.375rem; background: #fee2e2; color: #991b1b; border-radius: 2px;">⚠️ Échouée</span>
+                                        <span class="rounded bg-accent/20 px-2 py-0.5 text-xs text-accent">⚠️ Échouée</span>
                                     @else
-                                        <span style="font-size: 0.875rem; color: #6b7280;">En attente</span>
+                                        <span class="text-sm text-text-secondary">En attente</span>
                                     @endif
                                 </div>
                             </div>
@@ -151,12 +145,12 @@
         });
     </script>
 
-    <div style="margin-top: 2rem; padding: 1rem; border: 1px solid #e3e3e0; border-radius: 2px;">
-        <h2 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">Soumettre un CV</h2>
+    <div class="mt-8 rounded-xl border border-border bg-card p-5">
+        <h2 class="mb-4 text-base font-semibold text-white">Soumettre un CV</h2>
 
         @if($errors->any())
-            <div class="errors">
-                <ul>
+            <div class="mb-4 rounded-lg bg-accent/10 p-3 text-sm text-accent">
+                <ul class="list-disc space-y-1 pl-4">
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -164,20 +158,25 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('offres.candidatures.store', $offre) }}">
+        <form method="POST" action="{{ route('offres.candidatures.store', $offre) }}" class="space-y-4">
             @csrf
 
-            <div class="form-group">
-                <label for="nom_candidat">Nom du candidat</label>
-                <input type="text" id="nom_candidat" name="nom_candidat" value="{{ old('nom_candidat') }}" required maxlength="255">
+            <div>
+                <label for="nom_candidat" class="mb-1 block text-sm font-medium text-text-secondary">Nom du candidat</label>
+                <input type="text" id="nom_candidat" name="nom_candidat" value="{{ old('nom_candidat') }}" required maxlength="255"
+                    class="w-full rounded-lg border border-teal-dark bg-transparent px-4 py-2.5 text-sm text-white placeholder-text-secondary outline-none transition focus:border-teal focus:ring-1 focus:ring-teal">
             </div>
 
-            <div class="form-group">
-                <label for="cv_text">CV (texte brut, minimum 50 caractères)</label>
-                <textarea id="cv_text" name="cv_text" rows="8" required minlength="50" maxlength="50000" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #e3e3e0; border-radius: 2px; font-size: 0.875rem; font-family: inherit;">{{ old('cv_text') }}</textarea>
+            <div>
+                <label for="cv_text" class="mb-1 block text-sm font-medium text-text-secondary">CV (texte brut, minimum 50 caractères)</label>
+                <textarea id="cv_text" name="cv_text" rows="8" required minlength="50" maxlength="50000"
+                    class="w-full rounded-lg border border-teal-dark bg-transparent px-4 py-2.5 text-sm text-white placeholder-text-secondary outline-none transition focus:border-teal focus:ring-1 focus:ring-teal"
+                    placeholder="Collez le CV du candidat ici...">{{ old('cv_text') }}</textarea>
             </div>
 
-            <button type="submit" class="btn">Soumettre la candidature</button>
+            <button type="submit" class="rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-white transition hover:bg-accent/80">
+                Soumettre la candidature
+            </button>
         </form>
     </div>
 @endsection

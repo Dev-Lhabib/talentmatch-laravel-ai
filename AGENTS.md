@@ -48,6 +48,18 @@ TalentMatch est une application Laravel de présélection RH. Deux couches IA :
   service/job → réponse).
 - Eager loading systématique (`with()`, `withCount()`) — zéro requête N+1, vérifié avec
   Laravel Debugbar.
+- **UI / Theme** :
+  - Palette dark : bg `#0b0f1a`, sidebar `#1a212e`, card `#161c2b`, accent `#dc4a3c`,
+    teal `#2dd4bf`, text-secondary `#94a3b8`, border `#283142`, navbar gradient
+    `#7a1f28` → `#131a2b`.
+  - Les couleurs sont définies dans `tailwind.config.js` (extension `colors`).
+  - Les pages auth utilisent le layout Breeze (`layouts/guest.blade.php`) — dark theme.
+  - Les pages connectées utilisent `layouts/app.blade.php` avec `x-navbar` (composant)
+    et `x-sidebar` (composant).
+  - Les composants Breeze (`x-primary-button`, `x-text-input`, `x-input-label`, etc.)
+    sont utilisés dans les formulaires — **ne pas les remplacer**, surcharger les
+    classes si besoin.
+  - Alpine.js est disponible globalement pour l'interactivité frontend.
 
 ## 5. Règles spécifiques IA — ce que l'agent NE DOIT JAMAIS faire
 

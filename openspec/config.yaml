@@ -17,7 +17,7 @@ project:
 
 stack:
   language: php
-  language_version: "8.3"
+  language_version: "8.5"
   framework: laravel
   framework_version: "13.x"
   database:
@@ -28,6 +28,7 @@ stack:
     ai_sdk: laravel/ai
     dev:
       - laravel/boost
+      - laravel/breeze
       - barryvdh/laravel-debugbar
   queue:
     driver: database   # adapter selon docker-compose (database | redis)

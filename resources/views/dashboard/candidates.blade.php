@@ -1,0 +1,31 @@
+<x-layout.dashboard title="Dashboard Candidats">
+    @if($candidature)
+        <div class="grid h-[calc(100vh-5rem)] grid-cols-2 gap-6">
+            {{-- Left Panel: Candidate Analysis --}}
+            <x-candidate-analysis-panel
+                :candidature="$candidature"
+                :analyse="$candidature->analyse"
+            />
+
+            {{-- Right Panel: AI Chat --}}
+            <x-ai-chat-panel
+                :candidature="$candidature"
+                :messages="$messages"
+                :chat-store-url="$conversation ? route('chat.store', [$candidature->offre, $candidature]) : '#'"
+            />
+        </div>
+    @else
+        <div class="flex h-[calc(100vh-5rem)] items-center justify-center">
+            <div class="text-center">
+                <svg class="mx-auto h-12 w-12 text-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <h3 class="mt-4 text-lg font-semibold text-white">Aucune candidature analysée</h3>
+                <p class="mt-2 text-sm text-text-secondary">Soumettez un CV pour voir les résultats de l'analyse IA ici.</p>
+                <a href="{{ route('offres.index') }}" class="mt-4 inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition hover:bg-accent/80">
+                    Voir les offres
+                </a>
+            </div>
+        </div>
+    @endif
+</x-layout.dashboard>

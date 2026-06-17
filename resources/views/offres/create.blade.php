@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">Nouvelle offre</h1>
+    <h1 class="mb-6 text-xl font-semibold text-white">Nouvelle offre</h1>
 
     @if($errors->any())
-        <div class="errors">
-            <ul>
+        <div class="mb-4 rounded-lg bg-accent/10 p-3 text-sm text-accent">
+            <ul class="list-disc space-y-1 pl-4">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -16,9 +16,13 @@
     <form method="POST" action="{{ route('offres.store') }}">
         @include('offres._form')
 
-        <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem;">
-            <button type="submit" class="btn">Créer l'offre</button>
-            <a href="{{ route('offres.index') }}" class="btn" style="background: transparent; color: #1b1b18; border: 1px solid #e3e3e0;">Annuler</a>
+        <div class="mt-6 flex gap-2">
+            <button type="submit" class="rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-white transition hover:bg-accent/80">
+                Créer l'offre
+            </button>
+            <a href="{{ route('offres.index') }}" class="rounded-lg border border-border px-4 py-2.5 text-sm text-text-secondary transition hover:bg-card-hover hover:text-white">
+                Annuler
+            </a>
         </div>
     </form>
 @endsection
