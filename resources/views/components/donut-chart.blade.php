@@ -6,7 +6,7 @@
 
 @php
     $radius = ($size - $strokeWidth) / 2;
-    $circumference = 2 * pi($radius);
+    $circumference = 2 * pi() * $radius;
     $offset = $circumference - ($score / 100) * $circumference;
     $center = $size / 2;
 @endphp

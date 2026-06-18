@@ -41,7 +41,7 @@
 
             <div class="mb-4">
                 <h3 class="mb-1 text-sm font-medium text-white">Points forts</h3>
-                @if($candidature->analyse->points_forts->isNotEmpty())
+                @if(!empty($candidature->analyse->points_forts))
                     <ul class="space-y-0.5 pl-4 text-sm text-text-secondary">
                         @foreach($candidature->analyse->points_forts as $point)
                             <li class="list-disc">{{ $point }}</li>
@@ -54,7 +54,7 @@
 
             <div class="mb-4">
                 <h3 class="mb-1 text-sm font-medium text-white">Lacunes</h3>
-                @if($candidature->analyse->lacunes->isNotEmpty())
+                @if(!empty($candidature->analyse->lacunes))
                     <ul class="space-y-0.5 pl-4 text-sm text-text-secondary">
                         @foreach($candidature->analyse->lacunes as $lacune)
                             <li class="list-disc">{{ $lacune }}</li>
@@ -67,7 +67,7 @@
 
             <div class="mb-4">
                 <h3 class="mb-1 text-sm font-medium text-white">Compétences manquantes</h3>
-                @if($candidature->analyse->competences_manquantes->isNotEmpty())
+                @if(!empty($candidature->analyse->competences_manquantes))
                     <div class="flex flex-wrap gap-1.5">
                         @foreach($candidature->analyse->competences_manquantes as $competence)
                             <span class="inline-flex items-center rounded-full bg-accent/10 px-2.5 py-0.5 text-xs text-accent">
