@@ -1,6 +1,10 @@
-<x-layout.dashboard title="Dashboard Candidats">
+@extends('layouts.app')
+
+@section('title', 'Dashboard Candidats')
+
+@section('content')
     @if($candidature)
-        <div class="grid h-[calc(100vh-5rem)] grid-cols-2 gap-6">
+        <div class="grid h-full min-h-0 grid-cols-2 gap-6">
             {{-- Left Panel: Candidate Analysis --}}
             <x-candidate-analysis-panel
                 :candidature="$candidature"
@@ -15,7 +19,7 @@
             />
         </div>
     @else
-        <div class="flex h-[calc(100vh-5rem)] items-center justify-center">
+        <div class="flex h-full items-center justify-center">
             <div class="text-center">
                 <svg class="mx-auto h-12 w-12 text-text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -28,4 +32,4 @@
             </div>
         </div>
     @endif
-</x-layout.dashboard>
+@endsection

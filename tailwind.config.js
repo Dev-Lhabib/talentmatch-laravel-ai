@@ -23,6 +23,7 @@ export default {
                 teal: '#2dd4bf',
                 'teal-dark': '#283142',
                 success: '#34d399',
+                'success-bg': '#143d3a',
                 'text-secondary': '#94a3b8',
                 border: '#283142',
                 'navbar-left': '#7a1f28',

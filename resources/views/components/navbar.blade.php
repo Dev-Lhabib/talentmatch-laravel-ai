@@ -1,6 +1,6 @@
 @props([])
 
-<header class="flex h-16 items-center justify-between bg-gradient-to-r from-navbar-left to-navbar-right px-4">
+<header class="fixed top-0 z-50 flex h-16 w-full items-center justify-between bg-gradient-to-r from-navbar-left to-navbar-right px-4">
     {{-- Left: Logo + Title --}}
     <div class="flex items-center gap-3">
         <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-accent">
