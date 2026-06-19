@@ -40,20 +40,20 @@
 
     <div class="mb-4 flex flex-wrap gap-2">
         <button type="button" class="rounded-lg bg-card border border-border px-3 py-1.5 text-xs text-text-secondary transition hover:bg-card-hover hover:text-white"
-            onclick="document.getElementById('message').value='Pourquoi ce score ?'; this.closest('form').submit();">
+            onclick="document.getElementById('message').value='Pourquoi ce score ?'; document.getElementById('chat-form').submit();">
             Pourquoi ce score ?
         </button>
         <button type="button" class="rounded-lg bg-card border border-border px-3 py-1.5 text-xs text-text-secondary transition hover:bg-card-hover hover:text-white"
-            onclick="document.getElementById('message').value='Quelles questions poser en entretien ?'; this.closest('form').submit();">
+            onclick="document.getElementById('message').value='Quelles questions poser en entretien ?'; document.getElementById('chat-form').submit();">
             Questions d'entretien ?
         </button>
         <button type="button" class="rounded-lg bg-card border border-border px-3 py-1.5 text-xs text-text-secondary transition hover:bg-card-hover hover:text-white"
-            onclick="document.getElementById('message').value='Quels sont ses points faibles ?'; this.closest('form').submit();">
+            onclick="document.getElementById('message').value='Quels sont ses points faibles ?'; document.getElementById('chat-form').submit();">
             Points faibles ?
         </button>
     </div>
 
-    <form method="POST" action="{{ route('chat.store', [$offre, $candidature]) }}">
+    <form id="chat-form" method="POST" action="{{ route('chat.store', [$offre, $candidature]) }}">
         @csrf
         <div class="flex gap-2">
             <textarea

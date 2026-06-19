@@ -8,16 +8,14 @@ use App\Ai\Tools\CompareCandidatesTool;
 use App\Ai\Tools\GetCandidateAnalysisTool;
 use App\Ai\Tools\GetJobRequirementsTool;
 use App\Models\Conversation;
-use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\Conversational;
-use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Enums\Lab;
 use Laravel\Ai\Messages\Message;
 use Laravel\Ai\Promptable;
 
-class AnalyseCandidatAgent implements Agent, Conversational, HasStructuredOutput, HasTools
+class AnalyseCandidatAgent implements Agent, Conversational, HasTools
 {
     use Promptable;
 
@@ -77,42 +75,5 @@ class AnalyseCandidatAgent implements Agent, Conversational, HasStructuredOutput
             ->reverse()
             ->map(fn ($m) => new Message($m->role, $m->content))
             ->all();
-    }
-
-    public function schema(JsonSchema $schema): array
-    {
-        return [
-            'competences_extraites' => $schema->array()
-                ->items($schema->string())
-                ->required(),
-            'annees_experience' => $schema->integer()
-                ->min(0)
-                ->max(50)
-                ->required(),
-            'niveau_etudes' => $schema->string()
-                ->enum(['bac', 'bac+2', 'bac+3', 'bac+4', 'bac+5', 'doctorat', 'non_specifie'])
-                ->required(),
-            'langues' => $schema->array()
-                ->items($schema->string())
-                ->required(),
-            'matching_score' => $schema->integer()
-                ->min(0)
-                ->max(100)
-                ->required(),
-            'points_forts' => $schema->array()
-                ->items($schema->string())
-                ->required(),
-            'lacunes' => $schema->array()
-                ->items($schema->string())
-                ->required(),
-            'competences_manquantes' => $schema->array()
-                ->items($schema->string())
-                ->required(),
-            'recommandation' => $schema->string()
-                ->enum(['convoquer', 'attente', 'rejeter'])
-                ->required(),
-            'justification' => $schema->string()
-                ->required(),
-        ];
     }
 }

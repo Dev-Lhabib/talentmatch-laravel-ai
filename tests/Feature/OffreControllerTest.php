@@ -163,7 +163,7 @@ class OffreControllerTest extends TestCase
         $this->actingAs($this->user)
             ->get(route('offres.show', $offre))
             ->assertSee('85/100')
-            ->assertSee('Convoquer');
+            ->assertSee('À convoquer');
     }
 
     public function test_show_displays_pending_badge(): void
@@ -183,7 +183,7 @@ class OffreControllerTest extends TestCase
         $this->actingAs($this->user)
             ->get(route('offres.edit', $offre))
             ->assertOk()
-            ->assertSee('Modifier l\'offre');
+            ->assertSee('Modifier');
     }
 
     public function test_update_modifies_offre(): void

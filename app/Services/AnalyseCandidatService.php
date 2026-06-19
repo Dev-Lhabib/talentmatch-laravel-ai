@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Ai\Agents\AnalyseCandidatAgent;
+use App\Ai\Agents\AnalyseCandidatAnalysisAgent;
 use App\Models\Candidature;
 use Illuminate\Support\Collection;
 
 class AnalyseCandidatService
 {
     public function __construct(
-        private readonly AnalyseCandidatAgent $agent,
+        private readonly AnalyseCandidatAnalysisAgent $agent,
     ) {}
 
     public function analyser(Candidature $candidature): Collection
@@ -23,16 +23,16 @@ class AnalyseCandidatService
         $response = $this->agent->prompt($prompt);
 
         return collect([
-            'competences_extraites' => $response['competences_extraites'],
-            'annees_experience' => $response['annees_experience'],
-            'niveau_etudes' => $response['niveau_etudes'],
-            'langues' => $response['langues'],
-            'matching_score' => $response['matching_score'],
-            'points_forts' => $response['points_forts'],
-            'lacunes' => $response['lacunes'],
-            'competences_manquantes' => $response['competences_manquantes'],
-            'recommandation' => $response['recommandation'],
-            'justification' => $response['justification'],
+            'competences_extraites' => $response['competences_extraites'] ?? [],
+            'annees_experience' => $response['annees_experience'] ?? null,
+            'niveau_etudes' => $response['niveau_etudes'] ?? null,
+            'langues' => $response['langues'] ?? [],
+            'matching_score' => $response['matching_score'] ?? null,
+            'points_forts' => $response['points_forts'] ?? null,
+            'lacunes' => $response['lacunes'] ?? null,
+            'competences_manquantes' => $response['competences_manquantes'] ?? [],
+            'recommandation' => $response['recommandation'] ?? null,
+            'justification' => $response['justification'] ?? null,
         ]);
     }
 
@@ -51,7 +51,7 @@ class AnalyseCandidatService
         Nom : {$candidature->nom_candidat}
         {$candidature->cv_text}
 
-        Retourne une analyse structurée conforme au schéma fourni.
+        Analyse ce CV par rapport à l'offre et retourne UNIQUEMENT le JSON structuré conforme au schéma. N'utilise aucun outil.
         EOT;
     }
 

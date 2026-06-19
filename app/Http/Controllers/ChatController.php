@@ -59,10 +59,15 @@ class ChatController extends Controller
 
         $agent = new AnalyseCandidatAgent(conversation: $conversation);
         $response = $agent->prompt($request->validated('message'));
+        $assistantText = trim((string) $response->text());
+
+        if ($assistantText === '') {
+            $assistantText = 'Le modèle n\'a pas renvoyé de réponse. Veuillez réessayer.';
+        }
 
         $conversation->messages()->create([
             'role' => 'assistant',
-            'content' => $response->text(),
+            'content' => $assistantText,
         ]);
 
         return redirect()->route('chat.show', [$offre, $candidature])

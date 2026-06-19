@@ -69,9 +69,17 @@ class AnalyseCandidatJob implements ShouldQueue
         } catch (Throwable $e) {
             if ($this->attempts() >= $this->tries) {
                 $this->candidature->update(['status' => StatutCandidatureEnum::Failed]);
-                Log::error('AnalyseCandidatJob failed', [
+                Log::error('AnalyseCandidatJob failed — all retries exhausted', [
                     'candidature_id' => $this->candidature->id,
-                    'error' => $e->getMessage(),
+                    'attempts' => $this->attempts(),
+                    'error_message' => $e->getMessage(),
+                    'error_trace' => (string) $e,
+                ]);
+            } else {
+                Log::warning('AnalyseCandidatJob failed — will retry', [
+                    'candidature_id' => $this->candidature->id,
+                    'attempts' => $this->attempts(),
+                    'error_message' => $e->getMessage(),
                 ]);
             }
 

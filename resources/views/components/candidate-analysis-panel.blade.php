@@ -1,21 +1,43 @@
 @props([
     'candidature',
     'analyse',
+    'candidatures' => collect(),
 ])
 
 <div class="flex h-full flex-col rounded-xl border border-border bg-card">
     {{-- Panel Header --}}
-    <div class="flex items-center justify-between border-b border-border px-5 py-3">
-        <h2 class="text-sm font-semibold text-white">Candidates Analysis</h2>
-        <button class="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-text-secondary transition hover:bg-card-hover hover:text-white">
-            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-            Profiles
-            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-        </button>
+    <div class="flex flex-col gap-3 border-b border-border px-5 py-3">
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <h2 class="text-sm font-semibold text-white">Analyse du candidat</h2>
+                <p class="text-xs text-text-secondary">
+                    {{ $candidature->nom_candidat }} · Offre : {{ $candidature->offre->titre }}
+                </p>
+            </div>
+
+            @if($candidatures->count() > 1)
+                <div class="relative inline-block">
+                    <select
+                        onchange="window.location.href = this.value"
+                        class="rounded-lg border border-border bg-card px-3 py-2 pr-8 text-sm text-white outline-none transition focus:border-accent focus:ring-1 focus:ring-accent"
+                    >
+                        @foreach($candidatures as $candidateOption)
+                            <option
+                                value="{{ route('dashboard.candidates', ['candidate' => $candidateOption->id]) }}"
+                                @selected($candidateOption->id === $candidature->id)
+                            >
+                                {{ $candidateOption->nom_candidat }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-text-secondary">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </span>
+                </div>
+            @endif
+        </div>
     </div>
 
     {{-- Scrollable Content --}}
@@ -35,7 +57,7 @@
                 <div class="flex min-w-0 flex-1 flex-col gap-3">
                     {{-- Competences --}}
                     <div>
-                        <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-text-secondary">Competences</p>
+                        <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-text-secondary">Compétences</p>
                         <div class="flex flex-wrap gap-1.5">
                             @foreach($analyse->competences_extraites as $competence)
                                 <x-tag-badge :label="$competence" />
@@ -43,15 +65,15 @@
                         </div>
                     </div>
 
-                    {{-- Relevant Skills --}}
+                    {{-- Profil --}}
                     <div>
-                        <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-text-secondary">Relevant Skills</p>
+                        <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-text-secondary">Profil</p>
                         <p class="text-sm text-text-secondary">{{ $analyse->annees_experience }} ans d'expérience — {{ $analyse->niveau_etudes }}</p>
                     </div>
 
-                    {{-- Languages --}}
+                    {{-- Langues --}}
                     <div>
-                        <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-text-secondary">Languages</p>
+                        <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-text-secondary">Langues</p>
                         <div class="flex flex-wrap gap-1.5">
                             @foreach($analyse->langues as $langue)
                                 <x-tag-badge :label="$langue" />
@@ -86,7 +108,7 @@
 
             {{-- Recommendation Banner --}}
             <div class="mt-5 flex items-center justify-between rounded-lg bg-success-bg px-4 py-3">
-                <span class="text-sm text-text-secondary">Recommendation enum:</span>
+                <span class="text-sm text-text-secondary">Recommandation</span>
                 <x-status-badge :status="$analyse->recommandation->value" />
             </div>
         @else

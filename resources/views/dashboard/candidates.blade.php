@@ -9,6 +9,7 @@
             <x-candidate-analysis-panel
                 :candidature="$candidature"
                 :analyse="$candidature->analyse"
+                :candidatures="$candidatures"
             />
 
             {{-- Right Panel: AI Chat --}}

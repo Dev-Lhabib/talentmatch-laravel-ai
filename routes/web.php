@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CandidatureController;
 use App\Http\Controllers\ChatController;
@@ -31,7 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::put('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'update'])->name('password.update');
+    Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
 
     Route::get('/feedback', [FeedbackController::class, 'show'])->name('feedback.show');
     Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');

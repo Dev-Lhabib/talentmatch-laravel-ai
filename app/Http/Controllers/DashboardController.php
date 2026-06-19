@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Enums\StatutCandidatureEnum;
 use App\Models\Candidature;
 use App\Services\ConversationService;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -15,21 +16,28 @@ class DashboardController extends Controller
         private readonly ConversationService $conversationService,
     ) {}
 
-    public function candidates(): View
+    public function candidates(Request $request): View
     {
-        $candidature = Candidature::where('status', StatutCandidatureEnum::Completed)
+        $candidatures = Candidature::where('status', StatutCandidatureEnum::Completed)
             ->with(['analyse', 'offre'])
             ->orderedByScore()
-            ->first();
+            ->get();
 
+        $candidature = null;
         $conversation = null;
         $messages = collect();
 
-        if ($candidature) {
+        if ($candidatures->isNotEmpty()) {
+            $selectedId = $request->query('candidate');
+            $candidature = $selectedId
+                ? $candidatures->firstWhere('id', (int) $selectedId)
+                : $candidatures->first();
+
+            $candidature = $candidature ?? $candidatures->first();
             $conversation = $this->conversationService->resolve($candidature);
             $messages = $conversation->messages()->orderBy('created_at')->get();
         }
 
-        return view('dashboard.candidates', compact('candidature', 'conversation', 'messages'));
+        return view('dashboard.candidates', compact('candidature', 'candidatures', 'conversation', 'messages'));
     }
 }
