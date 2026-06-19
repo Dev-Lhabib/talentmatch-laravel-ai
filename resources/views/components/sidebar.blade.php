@@ -9,7 +9,7 @@
     {{-- Navigation --}}
     <nav class="flex flex-1 flex-col items-center justify-center gap-4">
         {{-- Dashboard / Grid --}}
-        <a href="{{ route('dashboard') }}" class="flex h-10 w-10 items-center justify-center rounded-lg {{ request()->routeIs('dashboard') && !request()->routeIs('dashboard.candidates') ? 'bg-card text-white' : 'text-text-secondary' }} transition hover:bg-card hover:text-white" title="Dashboard">
+        <a href="{{ route('dashboard') }}" class="flex h-10 w-10 items-center justify-center rounded-lg {{ request()->routeIs('dashboard') && !request()->routeIs('dashboard.candidates') ? 'bg-accent text-white' : 'text-text-secondary' }} transition hover:bg-accent hover:text-white" title="Dashboard">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
             </svg>
