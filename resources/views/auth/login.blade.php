@@ -32,16 +32,21 @@
             </label>
         </div>
 
-        <div class="mt-4 flex items-center justify-end">
-            @if (Route::has('password.request'))
-                <a class="rounded-md text-sm text-text-secondary underline underline-offset-4 transition hover:text-white" href="{{ route('password.request') }}">
-                    Mot de passe oublié ?
-                </a>
-            @endif
+        <div class="mt-4 flex items-center justify-between">
+            <a class="rounded-md text-sm text-text-secondary underline underline-offset-4 transition hover:text-white" href="{{ route('password.request') }}">
+                Mot de passe oublié ?
+            </a>
 
-            <x-primary-button class="ms-3">
+            <x-primary-button>
                 Connexion
             </x-primary-button>
+        </div>
+
+        <div class="mt-4 text-center">
+            <span class="text-sm text-text-secondary">Pas encore de compte ?</span>
+            <a class="ms-1 rounded-md text-sm text-teal underline underline-offset-4 transition hover:text-teal/80" href="{{ route('register') }}">
+                S'inscrire
+            </a>
         </div>
     </form>
 </x-guest-layout>
