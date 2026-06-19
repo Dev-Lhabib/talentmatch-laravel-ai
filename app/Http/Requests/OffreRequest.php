@@ -18,8 +18,9 @@ class OffreRequest extends FormRequest
         return [
             'titre' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'min:20'],
-            'competences' => ['nullable', 'array'],
-            'competences.*' => ['string', 'max:100'],
+            'required_skills' => ['nullable', 'array'],
+            'required_skills.*' => ['string', 'max:100'],
+            'status' => ['nullable', 'string', 'in:open,closed,draft'],
             'experience_min' => ['nullable', 'integer', 'min:0', 'max:50'],
         ];
     }

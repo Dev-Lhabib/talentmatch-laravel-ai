@@ -2,7 +2,10 @@
 
 ## Purpose
 
-Full CRUD management for job offers — create, list, view, edit, and delete offers with user-scoped authorization, competence management, and eager-loaded candidature data.
+Full CRUD management for job offers — two parallel entities:
+
+- **Offre** (legacy, French): `offres` table with `titre`, many-to-many competences via pivot, candidature integration with analysis scores.
+- **Offer** (new, English): `offers` table with `title`, inline `required_skills` JSON, status tracking (`open`/`closed`/`draft`), independent of the candidate system.
 
 ## Requirements
 
@@ -86,7 +89,7 @@ The system SHALL enforce that users can only access, modify, or delete their own
 
 #### Scenario: Policies are explicitly registered
 - **WHEN** the application boots
-- **THEN** `OffrePolicy` and `CandidaturePolicy` SHALL be registered in `AppServiceProvider::boot()` via `Gate::policy()`
+- **THEN** `OffrePolicy`, `OfferPolicy`, and `CandidaturePolicy` SHALL be registered in `AppServiceProvider::boot()` via `Gate::policy()`
 
 ### Requirement: Zero N+1 queries
 The system SHALL use eager loading to prevent N+1 queries on offer listings and detail pages.
@@ -98,3 +101,88 @@ The system SHALL use eager loading to prevent N+1 queries on offer listings and 
 #### Scenario: Show eager loading
 - **WHEN** the offer detail page is rendered
 - **THEN** the query uses `with('candidatures.analyse')` and Debugbar confirms no N+1 queries
+
+### Requirement: Offer (English) creation
+The system SHALL allow authenticated users to create job offers (English entity) with a title, description, optional minimum experience, optional required skills (as a JSON array of strings), and a status (default: open).
+
+#### Scenario: Successful offer (English) creation
+- **WHEN** an authenticated user submits the offer form with valid data (title, description, optional experience_min, optional required_skills)
+- **THEN** the system creates the offer linked to the authenticated user and redirects to the offer show page
+
+#### Scenario: Validation rejects empty title
+- **WHEN** an authenticated user submits the offer form with an empty title
+- **THEN** the system returns the form with a validation error on the title field and does not create the offer
+
+#### Scenario: Validation rejects short description
+- **WHEN** an authenticated user submits the offer form with a description shorter than 20 characters
+- **THEN** the system returns the form with a validation error on the description field and does not create the offer
+
+#### Scenario: Default status is open
+- **WHEN** an authenticated user creates an offer without specifying a status
+- **THEN** the system sets the offer status to `open`
+
+### Requirement: Offer (English) listing
+The system SHALL display a paginated list of the authenticated user's English offers with title, status badge, and candidate count.
+
+#### Scenario: Paginated offer index
+- **WHEN** an authenticated user visits GET /offers
+- **THEN** the system returns a paginated list of offers belonging to that user
+
+#### Scenario: Empty state
+- **WHEN** an authenticated user with no offers visits GET /offers
+- **THEN** the system displays an empty state message
+
+### Requirement: Offer (English) detail view
+The system SHALL display full offer details including title, description, required skills as badges, status badge, and experience minimum.
+
+#### Scenario: Offer show with all details
+- **WHEN** an authenticated user visits GET /offers/{offer}
+- **THEN** the system returns the offer with its title, description, required_skills, status, and experience_min
+
+#### Scenario: Required skills displayed as tags
+- **WHEN** viewing an offer with at least one required skill
+- **THEN** the system displays each skill as a rounded badge
+
+#### Scenario: Empty skills section
+- **WHEN** viewing an offer with no required skills
+- **THEN** the system displays "Aucune compétence requise" or similar message
+
+### Requirement: Offer (English) update
+The system SHALL allow the owner to edit and update their English offers.
+
+#### Scenario: Successful offer update
+- **WHEN** the offer owner submits the edit form with valid data
+- **THEN** the system updates the offer and redirects to the show page
+
+#### Scenario: Status can be changed on update
+- **WHEN** the offer owner changes the status from `open` to `closed`
+- **THEN** the system persists the new status value
+
+### Requirement: Offer (English) deletion
+The system SHALL allow the owner to delete their English offers.
+
+#### Scenario: Successful offer deletion
+- **WHEN** the offer owner confirms deletion
+- **THEN** the system deletes the offer and redirects to the index page
+
+#### Scenario: Other users cannot delete
+- **WHEN** a different authenticated user attempts to delete an offer they do not own
+- **THEN** the system returns a 403 Forbidden response
+
+### Requirement: Offer (English) user authorization
+The system SHALL enforce that users can only access, modify, or delete their own English offers.
+
+#### Scenario: Accessing another user's offer returns 403
+- **WHEN** an authenticated user visits GET /offers/{offer} where offer.user_id !== auth()->id()
+- **THEN** the system returns a 403 Forbidden response
+
+#### Scenario: Updating another user's offer returns 403
+- **WHEN** an authenticated user submits PUT /offers/{offer} where offer.user_id !== auth()->id()
+- **THEN** the system returns a 403 Forbidden response
+
+### Requirement: Required skills as JSON
+The system SHALL store required skills as a JSON array on the `offers` table and cast them as an array on the Eloquent model.
+
+#### Scenario: Skills round-trip as array
+- **WHEN** an offer is created with required_skills = ["Laravel", "Vue.js"]
+- **THEN** reading the offer returns the skills as a PHP array, not a string

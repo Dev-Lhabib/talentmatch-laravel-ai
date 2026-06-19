@@ -17,12 +17,16 @@ class Offre extends Model
         'titre',
         'description',
         'experience_min',
+        'required_skills',
+        'status',
     ];
 
     protected function casts(): array
     {
         return [
             'experience_min' => 'integer',
+            'required_skills' => 'array',
+            'status' => 'string',
         ];
     }
 

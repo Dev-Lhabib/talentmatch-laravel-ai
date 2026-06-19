@@ -5,14 +5,29 @@
         <a href="{{ route("offres.index") }}" class="text-sm text-accent hover:underline">← Retour à mes offres</a>
     </div>
 
+    @if(session('success'))
+        <div class="mb-4 rounded-lg bg-teal/10 p-3 text-sm text-teal">
+            {{ session('success') }}
+        </div>
+    @endif
+
     <div class="mb-6 flex items-start justify-between">
         <div>
             <h1 class="text-xl font-semibold text-white">{{ $offre->titre }}</h1>
             <p class="mt-1 text-sm text-text-secondary">
                 Créée le {{ $offre->created_at->format("d/m/Y") }}
+                @if($offre->experience_min)
+                    · {{ $offre->experience_min }} an{{ $offre->experience_min > 1 ? "s" : "" }} min.
+                @endif
             </p>
         </div>
-        <div class="flex gap-2">
+        <div class="flex items-center gap-2">
+            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                {{ $offre->status === 'open' ? 'bg-green-900/50 text-green-300' : '' }}
+                {{ $offre->status === 'closed' ? 'bg-red-900/50 text-red-300' : '' }}
+                {{ $offre->status === 'draft' ? 'bg-yellow-900/50 text-yellow-300' : '' }}">
+                {{ $offre->status === 'open' ? 'Ouvert' : ($offre->status === 'closed' ? 'Fermé' : 'Brouillon') }}
+            </span>
             <a href="{{ route("offres.edit", $offre) }}" class="rounded-lg border border-border px-3 py-1.5 text-sm text-text-secondary transition hover:bg-card-hover hover:text-white">
                 Modifier
             </a>
@@ -35,20 +50,20 @@
                 Expérience minimum : {{ $offre->experience_min }} an{{ $offre->experience_min > 1 ? "s" : "" }}
             </span>
         </div>
-
-        @if($offre->competences->isNotEmpty())
-            <div class="mt-3">
-                <span class="text-sm font-medium text-white">Compétences requises :</span>
-                <div class="mt-1.5 flex flex-wrap gap-1.5">
-                    @foreach($offre->competences as $competence)
-                        <span class="inline-flex items-center rounded-full bg-bg px-2.5 py-0.5 text-xs text-text-secondary border border-border">
-                            {{ $competence->nom }}
-                        </span>
-                    @endforeach
-                </div>
-            </div>
-        @endif
     </div>
+
+    @if($offre->required_skills && count($offre->required_skills))
+        <div class="mb-6 rounded-xl border border-border bg-card p-5">
+            <h2 class="mb-3 text-sm font-semibold text-white">Compétences requises</h2>
+            <div class="flex flex-wrap gap-1.5">
+                @foreach($offre->required_skills as $skill)
+                    <span class="inline-flex items-center rounded-full bg-bg px-2.5 py-0.5 text-xs text-text-secondary border border-border">
+                        {{ $skill }}
+                    </span>
+                @endforeach
+            </div>
+        </div>
+    @endif
 
     <div>
         <div class="mb-4 flex items-center justify-between">

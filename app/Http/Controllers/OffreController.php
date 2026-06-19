@@ -8,14 +8,12 @@ use App\Http\Requests\OffreRequest;
 use App\Models\Competence;
 use App\Models\Offre;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class OffreController extends Controller
 {
-    public function index(Request $request): View
+    public function index(): View
     {
         $offres = Offre::where('user_id', Auth::id())
             ->withCount('candidates')
@@ -36,18 +34,14 @@ class OffreController extends Controller
     {
         $validated = $request->validated();
 
-        $offre = DB::transaction(function () use ($validated) {
-            $offre = Offre::create([
-                'user_id' => Auth::id(),
-                'titre' => $validated['titre'],
-                'description' => $validated['description'],
-                'experience_min' => $validated['experience_min'] ?? 0,
-            ]);
-
-            $this->syncCompetences($offre, $validated['competences'] ?? []);
-
-            return $offre;
-        });
+        $offre = Offre::create([
+            'user_id' => Auth::id(),
+            'titre' => $validated['titre'],
+            'description' => $validated['description'],
+            'experience_min' => $validated['experience_min'] ?? 0,
+            'required_skills' => $validated['required_skills'] ?? [],
+            'status' => $validated['status'] ?? 'open',
+        ]);
 
         return redirect()->route('offres.show', $offre);
     }
@@ -56,7 +50,7 @@ class OffreController extends Controller
     {
         $this->authorize('view', $offre);
 
-        $offre->load('competences')->loadCount('candidates');
+        $offre->loadCount('candidates');
 
         $offre->load([
             'candidates' => fn ($q) => $q->orderedByScore(),
@@ -71,26 +65,15 @@ class OffreController extends Controller
         $this->authorize('update', $offre);
 
         $competences = Competence::orderBy('nom')->get();
-        $selectedCompetenceIds = $offre->competences->pluck('id')->toArray();
 
-        return view('offres.edit', compact('offre', 'competences', 'selectedCompetenceIds'));
+        return view('offres.edit', compact('offre', 'competences'));
     }
 
     public function update(OffreRequest $request, Offre $offre): RedirectResponse
     {
         $this->authorize('update', $offre);
 
-        $validated = $request->validated();
-
-        DB::transaction(function () use ($offre, $validated) {
-            $offre->update([
-                'titre' => $validated['titre'],
-                'description' => $validated['description'],
-                'experience_min' => $validated['experience_min'] ?? 0,
-            ]);
-
-            $this->syncCompetences($offre, $validated['competences'] ?? []);
-        });
+        $offre->update($request->validated());
 
         return redirect()->route('offres.show', $offre);
     }
@@ -102,26 +85,5 @@ class OffreController extends Controller
         $offre->delete();
 
         return redirect()->route('offres.index');
-    }
-
-    private function syncCompetences(Offre $offre, array $competenceNames): void
-    {
-        $competenceIds = [];
-
-        foreach ($competenceNames as $name) {
-            $name = trim($name);
-            if ($name === '') {
-                continue;
-            }
-
-            $competence = Competence::firstOrCreate(
-                ['nom' => $name],
-                ['nom' => $name]
-            );
-
-            $competenceIds[] = $competence->id;
-        }
-
-        $offre->competences()->sync($competenceIds);
     }
 }

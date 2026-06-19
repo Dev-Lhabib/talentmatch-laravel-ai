@@ -87,14 +87,12 @@ class OffreControllerTest extends TestCase
         ]);
     }
 
-    public function test_store_syncs_competences(): void
+    public function test_store_stores_required_skills(): void
     {
-        $competence = Competence::factory()->create(['nom' => 'PHP']);
-
         $data = [
             'titre' => 'Développeur PHP',
-            'description' => 'Poste de développeur PHP.',
-            'competences' => ['PHP'],
+            'description' => 'Poste de développeur PHP avec Laravel.',
+            'required_skills' => ['PHP', 'Laravel'],
         ];
 
         $this->actingAs($this->user)
@@ -102,7 +100,7 @@ class OffreControllerTest extends TestCase
             ->assertRedirect();
 
         $offre = Offre::where('titre', 'Développeur PHP')->first();
-        $this->assertTrue($offre->competences->contains('nom', 'PHP'));
+        $this->assertEquals(['PHP', 'Laravel'], $offre->required_skills);
     }
 
     public function test_store_validates_titre_required(): void
@@ -135,11 +133,11 @@ class OffreControllerTest extends TestCase
             ->assertSee('Offre Test');
     }
 
-    public function test_show_displays_competences(): void
+    public function test_show_displays_required_skills(): void
     {
-        $offre = Offre::factory()->for($this->user)->create();
-        $competence = Competence::factory()->create(['nom' => 'Laravel']);
-        $offre->competences()->attach($competence);
+        $offre = Offre::factory()->for($this->user)->create([
+            'required_skills' => ['PHP', 'Laravel'],
+        ]);
 
         $this->actingAs($this->user)
             ->get(route('offres.show', $offre))

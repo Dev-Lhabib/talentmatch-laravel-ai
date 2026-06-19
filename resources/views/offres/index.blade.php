@@ -21,9 +21,17 @@
                                 Créée le {{ $offre->created_at->format('d/m/Y') }}
                             </p>
                         </div>
-                        <span class="rounded-full bg-bg px-2.5 py-0.5 text-xs text-text-secondary border border-border">
-                            {{ $offre->candidates_count }} candidature{{ $offre->candidates_count > 1 ? 's' : '' }}
-                        </span>
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                                {{ $offre->status === 'open' ? 'bg-green-900/50 text-green-300' : '' }}
+                                {{ $offre->status === 'closed' ? 'bg-red-900/50 text-red-300' : '' }}
+                                {{ $offre->status === 'draft' ? 'bg-yellow-900/50 text-yellow-300' : '' }}">
+                                {{ $offre->status === 'open' ? 'Ouvert' : ($offre->status === 'closed' ? 'Fermé' : 'Brouillon') }}
+                            </span>
+                            <span class="rounded-full bg-bg px-2.5 py-0.5 text-xs text-text-secondary border border-border">
+                                {{ $offre->candidates_count }} candidature{{ $offre->candidates_count > 1 ? 's' : '' }}
+                            </span>
+                        </div>
                     </div>
                 </a>
             @endforeach
