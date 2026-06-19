@@ -9,6 +9,7 @@ use App\Models\Offre;
 use App\Policies\CandidatePolicy;
 use App\Policies\OffrePolicy;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,6 +27,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Route::model('candidature', Candidate::class);
+
         Gate::policy(Offre::class, OffrePolicy::class);
         Gate::policy(Candidate::class, CandidatePolicy::class);
     }
