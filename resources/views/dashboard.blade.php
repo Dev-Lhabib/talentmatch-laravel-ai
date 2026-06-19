@@ -6,66 +6,178 @@
         <p class="mt-1 text-sm text-text-secondary">Bienvenue, {{ auth()->user()->name }}.</p>
     </div>
 
-    {{-- Row 1: Stats cards --}}
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div class="rounded-lg border border-border bg-card p-5">
-            <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-teal/10 text-teal">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    {{-- Row 1: Stats cards (5 per row) --}}
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div class="flex flex-col rounded-lg border border-border bg-card p-3 border-l-4 border-l-teal">
+            <div class="flex items-center gap-2">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-teal/10 text-teal">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
                 </div>
-                <div>
-                    <p class="text-2xl font-bold text-white">{{ $totalCandidats }}</p>
-                    <p class="text-xs text-text-secondary">Total Candidats</p>
+                <div class="min-w-0">
+                    <p class="text-lg font-bold text-white truncate">{{ $totalCandidats }}</p>
+                    <p class="text-xs text-text-secondary truncate">Total Candidats</p>
                 </div>
             </div>
+            <p class="mt-1 text-xs text-text-secondary/60 truncate">Inscrits sur la plateforme</p>
         </div>
 
-        <div class="rounded-lg border border-border bg-card p-5">
-            <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-teal/10 text-teal">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <div class="flex flex-col rounded-lg border border-border bg-card p-3 border-l-4 border-l-blue-500">
+            <div class="flex items-center gap-2">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                 </div>
-                <div>
-                    <p class="text-2xl font-bold text-white">{{ $totalOffresGlobal }}</p>
-                    <p class="text-xs text-text-secondary">Total Offres</p>
+                <div class="min-w-0">
+                    <p class="text-lg font-bold text-white truncate">{{ $totalOffres }}</p>
+                    <p class="text-xs text-text-secondary truncate">Total Offres</p>
                 </div>
             </div>
+            <p class="mt-1 text-xs text-text-secondary/60 truncate">Créées par vous</p>
         </div>
 
-        <div class="rounded-lg border border-border bg-card p-5">
-            <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-teal/10 text-teal">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <div class="flex flex-col rounded-lg border border-border bg-card p-3 border-l-4 border-l-green-400">
+            <div class="flex items-center gap-2">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-400/10 text-green-400">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                <div>
-                    <p class="text-2xl font-bold text-white">{{ $analysesCompleted }}</p>
-                    <p class="text-xs text-text-secondary">Analyses complétées</p>
+                <div class="min-w-0">
+                    <p class="text-lg font-bold text-white truncate">{{ $analysesCompleted }}</p>
+                    <p class="text-xs text-text-secondary truncate">Analyses complétées</p>
                 </div>
             </div>
+            <p class="mt-1 text-xs text-text-secondary/60 truncate">Analyses terminées</p>
         </div>
 
-        <div class="rounded-lg border border-border bg-card p-5">
-            <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-red/10 text-accent">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <div class="flex flex-col rounded-lg border border-border bg-card p-3 border-l-4 border-l-yellow-400">
+            <div class="flex items-center gap-2">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-400/10 text-yellow-400">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                <div>
-                    <p class="text-2xl font-bold text-white">{{ $analysesEnAttente }}</p>
-                    <p class="text-xs text-text-secondary">Analyses en attente</p>
+                <div class="min-w-0">
+                    <p class="text-lg font-bold text-white truncate">{{ $analysesEnAttente }}</p>
+                    <p class="text-xs text-text-secondary truncate">Analyses en attente</p>
                 </div>
             </div>
+            <p class="mt-1 text-xs text-text-secondary/60 truncate">En file d'attente</p>
+        </div>
+
+        <div class="flex flex-col rounded-lg border border-border bg-card p-3 border-l-4 border-l-[#dc4a3c]">
+            <div class="flex items-center gap-2">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#dc4a3c]/10 text-[#dc4a3c]">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-lg font-bold text-white truncate">{{ $analysesEchouees }}</p>
+                    <p class="text-xs text-text-secondary truncate">Analyses échouées</p>
+                </div>
+            </div>
+            <p class="mt-1 text-xs text-text-secondary/60 truncate">Nécessitent une attention</p>
         </div>
     </div>
 
-    {{-- Row 2: Two columns --}}
+    {{-- Row 2: Stats cards --}}
+    <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+        <div class="flex flex-col rounded-lg border border-border bg-card p-3 border-l-4 border-l-slate-400">
+            <div class="flex items-center gap-2">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-400/10 text-slate-400">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-lg font-bold text-white truncate">{{ $candidatsSansAnalyse }}</p>
+                    <p class="text-xs text-text-secondary truncate">Candidats sans analyse</p>
+                </div>
+            </div>
+            <p class="mt-1 text-xs text-text-secondary/60 truncate">Non assignés à une offre</p>
+        </div>
+
+        <div class="flex flex-col rounded-lg border border-border bg-card p-3 border-l-4 border-l-purple-400">
+            <div class="flex items-center gap-2">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-400/10 text-purple-400">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-lg font-bold text-white truncate">{{ $offresActives }}</p>
+                    <p class="text-xs text-text-secondary truncate">Offres actives</p>
+                </div>
+            </div>
+            <p class="mt-1 text-xs text-text-secondary/60 truncate">En cours de recrutement</p>
+        </div>
+
+        <div class="flex flex-col rounded-lg border border-border bg-card p-3 border-l-4 border-l-emerald-500">
+            <div class="flex items-center gap-2">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-lg font-bold text-white truncate">{{ $tauxReussite }}%</p>
+                    <p class="text-xs text-text-secondary truncate">Taux de réussite</p>
+                </div>
+            </div>
+            <p class="mt-1 text-xs text-text-secondary/60 truncate">Score ≥ 70%</p>
+        </div>
+
+        <div class="flex flex-col rounded-lg border border-border bg-card p-3 border-l-4 border-l-green-400">
+            <div class="flex items-center gap-2">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-400/10 text-green-400">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-lg font-bold text-white truncate">{{ $aConvoquer }}</p>
+                    <p class="text-xs text-text-secondary truncate">À convoquer</p>
+                </div>
+            </div>
+            <p class="mt-1 text-xs text-text-secondary/60 truncate">Prêts pour entretien</p>
+        </div>
+
+        <div class="flex flex-col rounded-lg border border-border bg-card p-3 border-l-4 border-l-yellow-400">
+            <div class="flex items-center gap-2">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-400/10 text-yellow-400">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-lg font-bold text-white truncate">{{ $enAttenteRecommandation }}</p>
+                    <p class="text-xs text-text-secondary truncate">En attente</p>
+                </div>
+            </div>
+            <p class="mt-1 text-xs text-text-secondary/60 truncate">À recontacter</p>
+        </div>
+
+        <div class="flex flex-col rounded-lg border border-border bg-card p-3 border-l-4 border-l-[#dc4a3c]">
+            <div class="flex items-center gap-2">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#dc4a3c]/10 text-[#dc4a3c]">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-lg font-bold text-white truncate">{{ $nonRetenu }}</p>
+                    <p class="text-xs text-text-secondary truncate">Non retenu</p>
+                </div>
+            </div>
+            <p class="mt-1 text-xs text-text-secondary/60 truncate">Candidats refusés</p>
+        </div>
+    </div>
+
+    {{-- Row 3: Two columns --}}
     <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {{-- Left: Recent offres --}}
         <div class="rounded-lg border border-border bg-card">

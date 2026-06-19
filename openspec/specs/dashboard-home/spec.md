@@ -8,12 +8,29 @@ The dashboard homepage (`/dashboard`) provides recruiters with a high-level over
 
 ### Requirement: Dashboard stats cards
 
-The dashboard SHALL display 4 stat cards in a responsive grid: Total Candidats (from `candidates` table), Total Offres (from `offres` table), Analyses Complétées (applications with `status = completed`), Analyses en Attente (applications with `status = pending` or `processing`). Each card SHALL show an icon, a large number, a label in French, and a subtle colored border (teal for positive, red for alerts).
+The dashboard SHALL display 11 stat cards in two responsive rows (6 + 5 per row on large screens). Each card SHALL show a colored left border accent, an icon with matching background, a large number, a French label, and a descriptive subtitle. The 11 cards are:
+
+| Card | Data source | Color |
+|---|---|---|
+| Total Candidats | `Candidate::count()` | teal (`#2dd4bf`) |
+| Total Offres | `Offre::where('user_id', auth()->id())->count()` | blue (`#3b82f6`) |
+| Analyses complétées | Applications with `status = completed` that have an analysis | green (`#34d399`) |
+| Analyses en attente | Applications with `status = pending` or `processing` | yellow (`#fbbf24`) |
+| Analyses échouées | Applications with `status = failed` | red (`#dc4a3c`) |
+| Candidats sans analyse | Candidates with no applications at all | gray (`#94a3b8`) |
+| Offres actives | Offres with `status = 'open'` | purple (`#a78bfa`) |
+| Taux de réussite | Percentage of completed analyses with `matching_score >= 70` | emerald (`#10b981`) |
+| À convoquer | Analyses where `recommandation = 'convoquer'` | green (`#34d399`) |
+| En attente | Analyses where `recommandation = 'attente'` | yellow (`#fbbf24`) |
+| Non retenu | Analyses where `recommandation = 'rejeter'` | red (`#dc4a3c`) |
 
 #### Scenario: Stats cards render with correct counts
 
 - **WHEN** a user visits `/dashboard`
-- **THEN** 4 stat cards SHALL display side by side on large screens
+- **THEN** 11 stat cards SHALL display in two rows (5 + 6 on large screens)
+- **AND** each card SHALL have the correct count or percentage value
+- **AND** each card SHALL have a colored left border matching its assigned color
+- **AND** each card SHALL display a descriptive subtitle under the main label
 
 ### Requirement: Recent offres list
 

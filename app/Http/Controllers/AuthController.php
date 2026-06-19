@@ -115,17 +115,34 @@ class AuthController extends Controller
         $userId = Auth::id();
         $offreIds = Offre::where('user_id', $userId)->pluck('id');
 
-        $totalOffres = Offre::where('user_id', $userId)->count();
-        $totalOffresGlobal = Offre::count();
         $totalCandidats = Candidate::count();
 
-        $analysesCompleted = Analyse::whereHas('application', fn ($q) => $q->whereIn('offre_id', $offreIds))
-            ->where('matching_score', '>', 0)
+        $totalOffres = Offre::where('user_id', $userId)->count();
+
+        $analysesCompleted = Application::whereIn('offre_id', $offreIds)
+            ->where('status', StatutCandidatureEnum::Completed)
+            ->whereHas('analyse')
             ->count();
 
         $analysesEnAttente = Application::whereIn('offre_id', $offreIds)
             ->whereIn('status', [StatutCandidatureEnum::Pending, StatutCandidatureEnum::Processing])
             ->count();
+
+        $analysesEchouees = Application::whereIn('offre_id', $offreIds)
+            ->where('status', StatutCandidatureEnum::Failed)
+            ->count();
+
+        $candidatsSansAnalyse = Candidate::doesntHave('applications')->count();
+
+        $offresActives = Offre::where('user_id', $userId)
+            ->where('status', 'open')
+            ->count();
+
+        $completedHighScore = Analyse::whereHas('application', fn ($q) => $q->whereIn('offre_id', $offreIds))
+            ->where('matching_score', '>=', 70)
+            ->count();
+
+        $tauxReussite = $analysesCompleted > 0 ? round($completedHighScore / $analysesCompleted * 100) : 0;
 
         $avgScore = Analyse::whereHas('application', fn ($q) => $q->whereIn('offre_id', $offreIds))
             ->where('matching_score', '>', 0)
@@ -157,12 +174,22 @@ class AuthController extends Controller
                 ->count(),
         ];
 
+        $aConvoquer = $recommandationCounts['convoquer'];
+        $enAttenteRecommandation = $recommandationCounts['attente'];
+        $nonRetenu = $recommandationCounts['rejeter'];
+
         return view('dashboard', compact(
-            'totalOffres',
-            'totalOffresGlobal',
             'totalCandidats',
+            'totalOffres',
             'analysesCompleted',
             'analysesEnAttente',
+            'analysesEchouees',
+            'candidatsSansAnalyse',
+            'offresActives',
+            'tauxReussite',
+            'aConvoquer',
+            'enAttenteRecommandation',
+            'nonRetenu',
             'avgScore',
             'recentOffres',
             'recentCompletedAnalyses',
