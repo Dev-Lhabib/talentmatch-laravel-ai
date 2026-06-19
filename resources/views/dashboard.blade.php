@@ -83,10 +83,12 @@
                             </div>
                             <div class="ml-3 flex items-center gap-3">
                                 <span class="text-xs text-text-secondary">{{ $offre->applications_count }} candidature(s)</span>
-                                @if ($offre->status === 'ouverte')
+                                @if ($offre->status === 'open')
                                     <span class="inline-flex items-center rounded-full bg-green-900/50 px-2 py-0.5 text-xs font-medium text-green-300">Ouverte</span>
+                                @elseif ($offre->status === 'closed')
+                                    <span class="inline-flex items-center rounded-full bg-red-900/50 px-2 py-0.5 text-xs font-medium text-red-300">Fermée</span>
                                 @else
-                                    <span class="inline-flex items-center rounded-full bg-gray-700/50 px-2 py-0.5 text-xs font-medium text-gray-400">Fermée</span>
+                                    <span class="inline-flex items-center rounded-full bg-yellow-900/50 px-2 py-0.5 text-xs font-medium text-yellow-300">Brouillon</span>
                                 @endif
                             </div>
                         </a>
