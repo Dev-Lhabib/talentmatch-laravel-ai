@@ -12,7 +12,7 @@
 <body class="bg-bg font-sans text-white antialiased">
     <x-navbar />
     <x-sidebar />
-    <main class="ml-56 min-h-screen overflow-y-auto p-6 pt-16">
+    <main class="ml-20 min-h-screen overflow-y-auto p-6 pt-16">
         @yield('content')
     </main>
     @stack('scripts')
