@@ -101,14 +101,26 @@
         @endif
     </div>
 
+    {{-- Processing overlay --}}
+    <div x-data="{ processing: false }">
+        <div x-show="processing"
+             x-transition.opacity.duration.300ms
+             class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg/90 backdrop-blur-sm">
+            <div class="h-12 w-12 animate-spin rounded-full border-4 border-teal/30 border-t-teal"></div>
+            <p class="mt-6 text-lg font-semibold text-white">🔄 Comparaison en cours...</p>
+            <p class="mt-2 text-sm text-text-secondary">L'IA analyse les deux profils pour <span class="text-white">{{ $offre->titre }}</span></p>
+        </div>
+
     {{-- Candidatures existantes --}}
     <div x-data="{
         selected: [],
         get canCompare() { return this.selected.length === 2 },
-        compareUrl() {
-            if (this.selected.length !== 2) return '#';
-            const base = '{{ route('chat.show', [$offre, '__app__']) }}';
-            return base.replace('__app__', this.selected[0]) + '?compare=' + this.selected[1];
+        submitCompare() {
+            if (this.selected.length !== 2) return;
+            document.getElementById('app1_id').value = this.selected[0];
+            document.getElementById('app2_id').value = this.selected[1];
+            processing = true;
+            $nextTick(() => document.getElementById('compare-form').submit());
         },
         toggle(id) {
             const idx = this.selected.indexOf(id);
@@ -116,17 +128,23 @@
             else if (this.selected.length < 2) { this.selected.push(id); }
         }
     }">
+        <form id="compare-form" method="POST" action="{{ route('comparisons.create') }}" class="hidden">
+            @csrf
+            <input type="hidden" name="application1_id" id="app1_id" value="">
+            <input type="hidden" name="application2_id" id="app2_id" value="">
+        </form>
+
         <div class="mb-4 flex items-center justify-between">
             <h2 class="text-base font-semibold text-white">
                 Candidatures ({{ $applications->count() }})
             </h2>
-            <a x-show="canCompare"
-               :href="compareUrl()"
-               x-transition
-               class="inline-flex items-center gap-1.5 rounded-lg bg-teal px-3 py-1.5 text-sm font-medium text-white transition hover:bg-teal/80">
+            <button x-show="canCompare"
+                    @click="submitCompare()"
+                    x-transition
+                    class="inline-flex items-center gap-1.5 rounded-lg bg-teal px-3 py-1.5 text-sm font-medium text-white transition hover:bg-teal/80">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                 Comparer ces 2 candidats
-            </a>
+            </button>
         </div>
 
         @if($applications->isEmpty())
@@ -190,5 +208,6 @@
                 @endforeach
             </div>
         @endif
+    </div>
     </div>
 @endsection

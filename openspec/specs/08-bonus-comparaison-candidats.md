@@ -1,61 +1,62 @@
-# Spec 08 — Bonus : Comparaison de Deux Candidats
+# Spec 08 — Comparaison de Deux Candidats
 
 ## Statut
 
-Bonus (P3) — à implémenter en Phase 5 si le temps le permet.
+Implementé — voir aussi `comparison-flow` et `comparison-storage` specs.
 
 ## Objectif
 
 Permettre à l'agent RH de sélectionner deux candidats d'une même offre et d'obtenir
-une comparaison argumentée via l'assistant IA (tool `compareCandidates`).
+une comparaison structurée automatique via l'IA.
 
 ## Dans le périmètre
 
-- UI de sélection de deux candidats dans le détail d'une offre (cases à cocher).
-- Bouton « Comparer » qui ouvre la vue chat avec un message pré-rempli.
-- L'agent appelle `compareCandidates(id1, id2)` et produit une synthèse argumentée.
+- UI de sélection de deux candidats dans le détail d'une offre (cases à cocher + Alpine.js).
+- Bouton « Comparer ces 2 candidats » qui POST vers `/comparisons/create`.
+- L'appel IA génère un verdict structuré (JSON) stocké dans la table `comparisons`.
+- Page de résultat dédiée (`/comparisons/{id}`) en deux colonnes avec gagnant surligné.
 - Accessible uniquement si les deux candidatures ont `status = completed`.
 
 ## Hors périmètre / Ce que l'implémentation ne doit PAS faire
 
-- **Jamais** comparer deux candidats d'offres différentes (`compareCandidates` retourne
-  une erreur contrôlée dans ce cas — voir spec 05).
-- **Jamais** inventer la comparaison sans appeler `compareCandidates`.
-- Pas de nouvelle page dédiée à la comparaison — la comparaison passe par le chat
-  existant (spec 07), avec le contexte des deux candidats transmis via le tool.
+- **Jamais** comparer deux candidats d'offres différentes (le controller retourne une
+  erreur contrôlée).
+- **Jamais** utiliser le chat pour la comparaison — le chat reste pour les questions
+  individuelles par candidat.
+- Pas de file d'attente — l'appel IA est synchrone.
 
 ## Flux utilisateur
 
 1. Sur `/offres/{offre}`, l'agent RH coche deux candidatures `completed`.
-2. Clic sur « Comparer ces deux candidats ».
-3. Redirection vers le chat de la **première** candidature sélectionnée avec un message
-   initial pré-rempli : *« Compare ce candidat avec le candidat #{{ id2 }} »*.
-4. L'agent appelle `compareCandidates(id1, id2)` et répond avec une analyse comparative.
+2. Clic sur « Comparer ces 2 candidats » → overlay de chargement Alpine.js.
+3. POST vers `/comparisons/create` → appel IA synchrone → stockage en base.
+4. Redirection vers `/comparisons/{id}` avec le résultat structuré.
 
 ## Critères d'acceptation
 
 - [ ] Sélectionner exactement 2 candidats `completed` et cliquer « Comparer » →
-  redirection vers le chat avec message pré-rempli.
-- [ ] L'agent produit une réponse comparative en citant scores, points forts/faibles de
-  chacun et donne une recommandation finale argumentée.
-- [ ] Tenter de comparer un candidat `pending` → bouton « Comparer » désactivé / message
-  d'erreur.
-- [ ] Tenter de comparer deux candidats d'offres différentes → erreur contrôlée (même
-  si le cas ne devrait pas survenir via l'UI).
+  redirection vers `/comparisons/{id}` avec overlay de chargement.
+- [ ] La page de résultat affiche les deux candidats en deux colonnes, gagnant surligné.
+- [ ] La matrice de compétences montre ✅/❌ pour chaque compétence requise de l'offre.
+- [ ] Les verdicts IA et la raison du gagnant sont affichés.
+- [ ] Tenter de comparer un candidat `pending` → erreur contrôlée.
+- [ ] Tenter de comparer deux candidats d'offres différentes → erreur contrôlée.
+- [ ] Si l'IA échoue, la comparaison est créée avec des messages de fallback.
 
 ## Dépendances
 
-- Requiert : spec 05 (`compareCandidates`), spec 07 (chat).
+- Requiert : `comparison-storage` (table `comparisons`), `comparison-flow` (controller).
+- Requiert : spec 04 (analyses), spec 02 (offres).
 
 ## Branche Git
 
-`feature/bonus-comparaison-candidats` → `develop`
+`feature/improve-comparison-ui` → `develop`
 
 ## Workflow OpenSpec
 
 ```bash
-opsx propose bonus-comparaison-candidats
-opsx apply bonus-comparaison-candidats
-opsx sync bonus-comparaison-candidats
-opsx archive bonus-comparaison-candidats
+opsx propose improve-comparison-ui
+opsx apply improve-comparison-ui
+opsx sync improve-comparison-ui
+opsx archive improve-comparison-ui
 ```

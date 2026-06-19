@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\CandidatureController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ComparisonsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\OffreController;
@@ -54,4 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/applications/{application}', [ApplicationController::class, 'show'])->name('applications.show');
     Route::post('/applications/{application}/retry', [ApplicationController::class, 'retry'])->name('applications.retry');
     Route::post('/applications/{application}/chat', [ApplicationController::class, 'jsonChat'])->name('applications.chat');
+
+    Route::post('/comparisons/create', [ComparisonsController::class, 'create'])->name('comparisons.create');
+    Route::get('/comparisons/{comparison}', [ComparisonsController::class, 'show'])->name('comparisons.show');
 });
