@@ -19,26 +19,42 @@ class DashboardController extends Controller
     public function candidates(Request $request): View
     {
         $applications = Application::where('status', StatutCandidatureEnum::Completed)
+            ->whereHas('offre', fn ($q) => $q->where('user_id', auth()->id()))
             ->with(['candidate', 'analyse', 'offre'])
             ->whereHas('analyse')
             ->get()
             ->sortByDesc(fn (Application $app) => $app->analyse?->matching_score ?? 0);
+
+        $offers = $applications->pluck('offre')->unique('id')->sortBy('titre');
 
         $selectedApp = null;
         $conversation = null;
         $messages = collect();
 
         if ($applications->isNotEmpty()) {
-            $selectedId = $request->query('candidate');
-            $selectedApp = $selectedId
-                ? $applications->firstWhere('candidate_id', (int) $selectedId)
-                : $applications->first();
+            $selectedOffreId = (int) $request->integer('offre');
+            $selectedCandidateId = (int) $request->integer('candidate');
 
-            $selectedApp = $selectedApp ?? $applications->first();
-            $conversation = $this->conversationService->resolve($selectedApp);
-            $messages = $conversation->messages()->orderBy('created_at')->get();
+            $offerApps = $selectedOffreId
+                ? $applications->where('offre_id', $selectedOffreId)
+                : collect();
+
+            if ($selectedOffreId && $offerApps->isNotEmpty()) {
+                $selectedApp = $selectedCandidateId
+                    ? $offerApps->firstWhere('candidate_id', $selectedCandidateId)
+                    : null;
+
+                $selectedApp ??= $offerApps->first();
+            }
+
+            $selectedApp ??= $applications->first();
+
+            if ($selectedApp) {
+                $conversation = $this->conversationService->resolve($selectedApp);
+                $messages = $conversation->messages()->orderBy('created_at')->get();
+            }
         }
 
-        return view('dashboard.candidates', compact('selectedApp', 'applications', 'conversation', 'messages'));
+        return view('dashboard.candidates', compact('selectedApp', 'applications', 'offers', 'conversation', 'messages'));
     }
 }

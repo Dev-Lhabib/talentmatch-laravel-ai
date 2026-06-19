@@ -1,47 +1,55 @@
 @props([
     "application",
     "allApplications" => collect(),
+    "offers" => collect(),
 ])
 
 @php
     $candidate = $application->candidate;
     $analyse = $application->analyse;
+    $sameOfferApps = $allApplications->filter(fn($app) => $app->offre_id === $application->offre_id);
 @endphp
 
 <div class="flex h-full flex-col rounded-xl border border-border bg-card">
-    {{-- Panel Header --}}
-    <div class="flex flex-col gap-3 border-b border-border px-5 py-3">
-        <div class="flex items-center justify-between gap-4">
-            <div>
-                <h2 class="text-sm font-semibold text-white">Analyse du candidat</h2>
-                <p class="text-xs text-text-secondary">
-                    {{ $candidate->name }} · Offre : {{ $application->offre->titre }}
-                </p>
-            </div>
+    {{-- Compact Header with Dropdowns --}}
+    <div class="border-b border-border px-5 py-2.5">
+        <div class="flex items-center gap-2">
+            @if($offers->count() > 1)
+                <select
+                    class="min-w-[300px] rounded-lg border border-border bg-card px-2 py-1.5 text-sm text-white outline-none transition focus:border-teal"
+                    onchange="window.location = this.value"
+                >
+                    @foreach($offers as $offre)
+                        <option
+                            value="{{ route("dashboard.candidates", ["offre" => $offre->id]) }}"
+                            @selected($application->offre_id === $offre->id)
+                        >
+                            {{ $offre->titre }}
+                        </option>
+                    @endforeach
+                </select>
+            @endif
 
-            @if($allApplications->count() > 1)
-                <div class="relative inline-block">
-                    <select
-                        onchange="window.location.href = this.value"
-                        class="rounded-lg border border-border bg-card px-3 py-2 pr-8 text-sm text-white outline-none transition focus:border-accent focus:ring-1 focus:ring-accent"
-                    >
-                        @foreach($allApplications as $app)
-                            <option
-                                value="{{ route("dashboard.candidates", ["candidate" => $app->candidate_id]) }}"
-                                @selected($app->candidate_id === $application->candidate_id)
-                            >
-                                {{ $app->candidate->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-text-secondary">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </span>
-                </div>
+            @if($sameOfferApps->count() > 1)
+                <select
+                    onchange="window.location.href = this.value"
+                    class="min-w-[160px] rounded-lg border border-border bg-card px-2 py-1.5 text-sm text-white outline-none transition focus:border-teal"
+                >
+                    @foreach($sameOfferApps as $app)
+                        <option
+                            value="{{ route("dashboard.candidates", ["offre" => $application->offre_id, "candidate" => $app->candidate_id]) }}"
+                            @selected($app->candidate_id === $application->candidate_id)
+                        >
+                            {{ $app->candidate->name }}
+                        </option>
+                    @endforeach
+                </select>
             @endif
         </div>
+
+        <p class="mt-1.5 text-xs text-text-secondary">
+            {{ $candidate->name }} · {{ $application->offre->titre }}
+        </p>
     </div>
 
     {{-- Scrollable Content --}}

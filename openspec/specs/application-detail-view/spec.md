@@ -7,7 +7,7 @@ Display a full-screen analysis page for an Application at `GET /applications/{ap
 ## Requirements
 
 ### Requirement: Application detail view
-The system SHALL display a full-screen analysis page for an Application at `GET /applications/{application}` showing candidate profile, matching data, and analysis results.
+The system SHALL display a full-screen analysis page for an Application at `GET /applications/{application}` showing candidate profile, matching data, analysis results, and offer selector.
 
 #### Scenario: View application detail with full analysis
 - **WHEN** an authenticated user navigates to `/applications/{application}`
@@ -18,6 +18,13 @@ The system SHALL display a full-screen analysis page for an Application at `GET 
 - **AND** points forts list from `analyses.points_forts` (JSON array)
 - **AND** lacunes list from `analyses.lacunes` (JSON array)
 - **AND** recommendation banner from `analyses.recommandation` with color-coded styling
+- **AND** the header SHALL display "{{ candidate.name }} · Offre : {{ offre.titre }}"
+
+#### Scenario: Offer selector dropdown renders
+- **WHEN** a user navigates to `/applications/{application}`
+- **THEN** the header SHALL display "{{ candidate.name }} · Offre : {{ offre.titre }}"
+- **AND** a dropdown SHALL list all other applications for this candidate with completed analyses
+- **AND** selecting a different option SHALL navigate to `/applications/{new_id}`
 
 #### Scenario: Failed analysis state
 - **WHEN** `application.status` is `failed`

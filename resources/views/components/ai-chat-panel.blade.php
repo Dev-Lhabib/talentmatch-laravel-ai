@@ -7,9 +7,9 @@
 @php
     $candidate = $application->candidate;
     $messagesJson = $messages->map(fn ($m) => [
-        "role" => $m->role === "user" ? "user" : "assistant",
+        "role" => $m->role instanceof \App\Enums\MessageRoleEnum ? $m->role->value : $m->role,
         "content" => $m->content,
-        "label" => $m->role === "user" ? "HR Agent" : "AI",
+        "label" => ($m->role instanceof \App\Enums\MessageRoleEnum ? $m->role->value : $m->role) === "user" ? "HR Agent" : "AI",
     ])->values()->toJson();
 @endphp
 

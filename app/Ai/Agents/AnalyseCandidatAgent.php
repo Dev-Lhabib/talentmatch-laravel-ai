@@ -79,7 +79,7 @@ class AnalyseCandidatAgent implements Agent, Conversational, HasTools
             ->limit(20)
             ->get()
             ->reverse()
-            ->map(fn ($m) => new Message($m->role, $m->content))
+            ->map(fn ($m) => new Message($m->role->value, $m->content))
             ->all();
     }
 }

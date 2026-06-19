@@ -24,6 +24,25 @@ class ApplicationController extends Controller
     {
         $application->load(['candidate', 'offre', 'analyse']);
 
+        $candidateApplications = collect();
+
+        if ($application->candidate) {
+            $candidateApplications = Application::where('candidate_id', $application->candidate_id)
+                ->where('status', StatutCandidatureEnum::Completed)
+                ->with(['offre', 'analyse'])
+                ->get();
+        }
+
+        $candidates = collect();
+
+        if ($application->offre) {
+            $candidates = Application::where('offre_id', $application->offre_id)
+                ->where('status', StatutCandidatureEnum::Completed)
+                ->with('candidate')
+                ->get()
+                ->pluck('candidate');
+        }
+
         $conversation = null;
         $messages = collect();
 
@@ -35,7 +54,7 @@ class ApplicationController extends Controller
             }
         }
 
-        return view('applications.show', compact('application', 'conversation', 'messages'));
+        return view('applications.show', compact('application', 'conversation', 'messages', 'candidateApplications', 'candidates'));
     }
 
     public function retry(Application $application): RedirectResponse
@@ -62,17 +81,21 @@ class ApplicationController extends Controller
             'content' => $request->validated('message'),
         ]);
 
-        $agent = new AnalyseCandidatAgent(
-            conversation: $conversation,
-            candidatureId: (int) $application->id,
-            offreId: (int) $application->offre_id,
-        );
+        try {
+            $agent = new AnalyseCandidatAgent(
+                conversation: $conversation,
+                candidatureId: (int) $application->id,
+                offreId: (int) $application->offre_id,
+            );
 
-        $response = $agent->prompt($request->validated('message'));
-        $assistantText = trim((string) $response->text());
+            $response = $agent->prompt($request->validated('message'));
+            $assistantText = trim((string) $response->text());
 
-        if ($assistantText === '') {
-            $assistantText = "Le modèle n\u2019a pas renvoyé de réponse. Veuillez réessayer.";
+            if ($assistantText === '') {
+                $assistantText = "Le modèle n\u2019a pas renvoyé de réponse. Veuillez réessayer.";
+            }
+        } catch (\Throwable $e) {
+            return response()->json(['error' => "L\u2019assistant IA est temporairement indisponible. Veuillez réessayer plus tard."], 503);
         }
 
         $message = $conversation->messages()->create([

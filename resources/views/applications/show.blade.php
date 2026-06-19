@@ -11,8 +11,48 @@
         $offset = $circumference - ($score / 100) * $circumference;
     @endphp
 
-    <div class="mb-4">
-        <a href="{{ route("offres.show", $application->offre) }}" class="text-sm text-accent hover:underline">← Retour à l'offre</a>
+    <div class="mb-4 flex items-center justify-between gap-4">
+        <a href="{{ route("offres.show", $application->offre) }}" class="text-sm text-accent hover:underline shrink-0">← Retour à l'offre</a>
+
+        <div class="flex items-center gap-4">
+            @if($candidates->count() > 0)
+                <div class="flex items-center gap-2">
+                    <label class="text-xs text-text-secondary">Candidat :</label>
+                    <select
+                        class="rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-white outline-none transition focus:border-teal"
+                        onchange="window.location = '/applications/' + this.value"
+                    >
+                        @foreach($candidates as $cand)
+                            @php $candApp = $candidateApplications->firstWhere('candidate_id', $cand->id); @endphp
+                            @if($candApp)
+                                <option value="{{ $candApp->id }}" {{ $cand->id === $application->candidate_id ? 'selected' : '' }}>
+                                    {{ $cand->name }}
+                                </option>
+                            @endif
+                        @endforeach
+                    </select>
+                </div>
+            @endif
+
+            @if($candidateApplications->count() > 1)
+                <div class="flex items-center gap-2">
+                    <label class="text-xs text-text-secondary">Offre :</label>
+                    <select
+                        class="rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-white outline-none transition focus:border-teal"
+                        onchange="window.location = '/applications/' + this.value"
+                    >
+                        @foreach($candidateApplications as $app)
+                            <option value="{{ $app->id }}" {{ $app->id === $application->id ? 'selected' : '' }}>
+                                {{ $app->offre->titre }}
+                                @if($app->analyse)
+                                    ({{ $app->analyse->matching_score }}%)
+                                @endif
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            @endif
+        </div>
     </div>
 
     @if(session("success"))
@@ -33,7 +73,7 @@
                     {{ strtoupper(substr($candidate->name, 0, 1)) }}
                 </div>
                 <div class="min-w-0 flex-1">
-                    <h1 class="text-xl font-semibold text-white">{{ $candidate->name }}</h1>
+                    <h1 class="text-xl font-semibold text-white">{{ $candidate->name }} <span class="text-base font-normal text-text-secondary">· Offre : {{ $application->offre->titre }}</span></h1>
                     <p class="mt-1 text-sm leading-relaxed text-text-secondary">{{ $bio }}</p>
                     <div class="mt-3 flex flex-wrap gap-3 text-xs text-text-secondary">
                         @if($candidate->email)

@@ -3,19 +3,24 @@
 @section("title", "Dashboard Candidats")
 
 @section("content")
+    @php
+        $chatStoreUrl = $conversation && $selectedApp ? route('applications.chat', $selectedApp) : '#';
+    @endphp
+
     @if($selectedApp)
         <div class="grid h-full min-h-0 grid-cols-2 gap-6">
             {{-- Left Panel: Candidate Analysis --}}
             <x-candidate-analysis-panel
                 :application="$selectedApp"
                 :all-applications="$applications"
+                :offers="$offers"
             />
 
             {{-- Right Panel: AI Chat --}}
             <x-ai-chat-panel
                 :application="$selectedApp"
                 :messages="$messages"
-                :chat-store-url="$conversation ? route(\"chat.store\", [$selectedApp->offre, $selectedApp]) : \"#\""
+                :chat-store-url="$chatStoreUrl"
             />
         </div>
     @else
