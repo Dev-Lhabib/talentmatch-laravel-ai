@@ -89,7 +89,7 @@ class ApplicationController extends Controller
             );
 
             $response = $agent->prompt($request->validated('message'));
-            $assistantText = trim((string) $response->text());
+            $assistantText = trim($response->text);
 
             if ($assistantText === '') {
                 $assistantText = "Le modèle n\u2019a pas renvoyé de réponse. Veuillez réessayer.";

@@ -12,7 +12,7 @@ réponses (hallucination).
 
 ## Dans le périmètre
 
-- `getCandidateAnalysis(int $candidatId)` — retourne l'analyse complète d'une candidature.
+- `getCandidateAnalysis(int $candidatureId)` — retourne l'analyse complète d'une candidature.
 - `getJobRequirements(int $offreId)` — retourne les critères d'une offre.
 - `compareCandidates(int $id1, int $id2)` — retourne les deux analyses pour comparaison.
 - Chaque tool vérifie que la ressource demandée appartient à `auth()->id()`.
@@ -52,37 +52,43 @@ getCandidateAnalysis(int $candidatId): array|string
 **Implémentation**
 
 ```php
-public function getCandidateAnalysis(int $candidatId): array|string
+public function getCandidateAnalysis(int $candidatureId): array|string
 {
-    $candidature = Candidature::with('analyse', 'offre')
-        ->where('id', $candidatId)
-        ->where('user_id', auth()->id())
+    $application = Application::with('candidate', 'analyse', 'offre')
+        ->where('id', $candidatureId)
+        ->whereHas('offre', fn ($q) => $q->where('user_id', auth()->id()))
+        ->whereHas('analyse')
+        ->latest()
         ->first();
 
-    if (! $candidature) {
-        return "Candidature introuvable ou accès non autorisé.";
+    if (! $application) {
+        $latestApp = Application::with('offre')
+            ->where('id', $candidatureId)
+            ->whereHas('offre', fn ($q) => $q->where('user_id', auth()->id()))
+            ->latest()
+            ->first();
+
+        $status = $latestApp?->status?->value ?? 'inconnu';
+
+        return "L'analyse de ce candidat n'est pas encore disponible "
+             . "(statut : {$status}).";
     }
 
-    if (! $candidature->analyse) {
-        return "L'analyse de cette candidature n'est pas encore disponible "
-             . "(statut : {$candidature->status->value}).";
-    }
-
-    $a = $candidature->analyse;
+    $a = $application->analyse;
 
     return [
-        'candidat'                => $candidature->nom_candidat,
-        'offre'                   => $candidature->offre->titre,
-        'matching_score'          => $a->matching_score,
-        'recommandation'          => $a->recommandation->value,
-        'justification'           => $a->justification,
-        'points_forts'            => $a->points_forts,
-        'lacunes'                 => $a->lacunes,
-        'competences_manquantes'  => $a->competences_manquantes,
-        'competences_extraites'   => $a->competences_extraites,
-        'annees_experience'       => $a->annees_experience,
-        'niveau_etudes'           => $a->niveau_etudes,
-        'langues'                 => $a->langues,
+        'candidat'               => $application->candidate->name,
+        'offre'                  => $application->offre->titre,
+        'matching_score'         => $a->matching_score,
+        'recommandation'         => $a->recommandation->value,
+        'justification'          => $a->justification,
+        'points_forts'           => $a->points_forts,
+        'lacunes'                => $a->lacunes,
+        'competences_manquantes' => $a->competences_manquantes,
+        'competences_extraites'  => $a->competences_extraites,
+        'annees_experience'      => $a->annees_experience,
+        'niveau_etudes'          => $a->niveau_etudes,
+        'langues'                => $a->langues,
     ];
 }
 ```
@@ -137,55 +143,57 @@ compareCandidates(int $id1, int $id2): array|string
 
 **Description fournie à l'agent**
 
-> Compare les analyses de deux candidats soumis sur la même offre. Retourne les données
-> des deux analyses côte à côte pour permettre une comparaison argumentée. Appelle ce
-> tool quand l'utilisateur demande de comparer deux profils.
+> Compare les analyses de deux candidatures soumises sur la même offre. Retourne les
+> données des deux analyses côte à côte pour permettre une comparaison argumentée.
+> Les paramètres sont les IDs des candidatures (applications). Appelle ce tool quand
+> l'utilisateur demande de comparer deux profils.
 
 **Implémentation**
 
 ```php
 public function compareCandidates(int $id1, int $id2): array|string
 {
-    $candidatures = Candidature::with('analyse', 'offre')
+    $apps = Application::with('candidate', 'analyse', 'offre')
         ->whereIn('id', [$id1, $id2])
-        ->where('user_id', auth()->id())
+        ->whereHas('analyse')
+        ->whereHas('offre', fn ($q) => $q->where('user_id', auth()->id()))
         ->get();
 
-    if ($candidatures->count() !== 2) {
+    if ($apps->count() !== 2) {
         return "Une ou plusieurs candidatures sont introuvables ou non autorisées.";
     }
 
-    $c1 = $candidatures->firstWhere('id', $id1);
-    $c2 = $candidatures->firstWhere('id', $id2);
+    $app1 = $apps->firstWhere('id', $id1);
+    $app2 = $apps->firstWhere('id', $id2);
 
-    if ($c1->offre_id !== $c2->offre_id) {
+    if ($app1->offre_id !== $app2->offre_id) {
         return "Les deux candidatures doivent appartenir à la même offre d'emploi.";
     }
 
-    if (! $c1->analyse || ! $c2->analyse) {
+    if (! $app1->analyse || ! $app2->analyse) {
         return "L'une des deux analyses n'est pas encore disponible.";
     }
 
     return [
-        'offre'      => $c1->offre->titre,
-        'candidat_1' => $this->formatAnalyse($c1),
-        'candidat_2' => $this->formatAnalyse($c2),
+        'offre'      => $app1->offre->titre,
+        'candidat_1' => $this->formatAnalyse($app1),
+        'candidat_2' => $this->formatAnalyse($app2),
     ];
 }
 
-private function formatAnalyse(Candidature $c): array
+private function formatAnalyse(Application $app): array
 {
-    $a = $c->analyse;
+    $a = $app->analyse;
     return [
-        'id'                      => $c->id,
-        'nom'                     => $c->nom_candidat,
-        'matching_score'          => $a->matching_score,
-        'recommandation'          => $a->recommandation->value,
-        'points_forts'            => $a->points_forts,
-        'lacunes'                 => $a->lacunes,
-        'competences_manquantes'  => $a->competences_manquantes,
-        'annees_experience'       => $a->annees_experience,
-        'justification'           => $a->justification,
+        'id'                     => $app->id,
+        'nom'                    => $app->candidate->name,
+        'matching_score'         => $a->matching_score,
+        'recommandation'         => $a->recommandation->value,
+        'points_forts'           => $a->points_forts,
+        'lacunes'                => $a->lacunes,
+        'competences_manquantes' => $a->competences_manquantes,
+        'annees_experience'      => $a->annees_experience,
+        'justification'          => $a->justification,
     ];
 }
 ```

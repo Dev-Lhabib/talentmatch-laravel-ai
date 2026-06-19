@@ -102,11 +102,31 @@
     </div>
 
     {{-- Candidatures existantes --}}
-    <div>
+    <div x-data="{
+        selected: [],
+        get canCompare() { return this.selected.length === 2 },
+        compareUrl() {
+            if (this.selected.length !== 2) return '#';
+            const base = '{{ route('chat.show', [$offre, '__app__']) }}';
+            return base.replace('__app__', this.selected[0]) + '?compare=' + this.selected[1];
+        },
+        toggle(id) {
+            const idx = this.selected.indexOf(id);
+            if (idx >= 0) { this.selected.splice(idx, 1); }
+            else if (this.selected.length < 2) { this.selected.push(id); }
+        }
+    }">
         <div class="mb-4 flex items-center justify-between">
             <h2 class="text-base font-semibold text-white">
                 Candidatures ({{ $applications->count() }})
             </h2>
+            <a x-show="canCompare"
+               :href="compareUrl()"
+               x-transition
+               class="inline-flex items-center gap-1.5 rounded-lg bg-teal px-3 py-1.5 text-sm font-medium text-white transition hover:bg-teal/80">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                Comparer ces 2 candidats
+            </a>
         </div>
 
         @if($applications->isEmpty())
@@ -118,8 +138,16 @@
                     @if($application->analyse)
                         @php $rank++; @endphp
                     @endif
-                    <div class="flex items-center gap-3 rounded-xl border border-border bg-card p-4">
+                    <div class="flex items-center gap-3 rounded-xl border border-border bg-card p-4"
+                         :class="{ 'border-teal/50 bg-teal/[0.03]': selected.includes({{ $application->id }}) }">
                         @if($application->analyse)
+                            <label class="flex cursor-pointer items-center">
+                                <input type="checkbox"
+                                       value="{{ $application->id }}"
+                                       :checked="selected.includes({{ $application->id }})"
+                                       @change="toggle({{ $application->id }})"
+                                       class="h-4 w-4 rounded border-border bg-bg text-teal focus:ring-teal">
+                            </label>
                             <span class="min-w-[2rem] text-center text-sm font-bold
                                 @if($rank === 1) text-yellow-500
                                 @elseif($rank === 2) text-gray-400
@@ -135,6 +163,7 @@
                             </span>
                         @else
                             <span class="min-w-[2rem]"></span>
+                            <span class="w-4"></span>
                         @endif
                         <a href="{{ route("applications.show", $application) }}" class="flex-1 text-decoration-none">
                             <div class="flex items-center justify-between">

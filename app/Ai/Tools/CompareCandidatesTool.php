@@ -11,13 +11,13 @@ class CompareCandidatesTool
     public function __invoke(int $id1, int $id2): array|string
     {
         $apps = Application::with('candidate', 'analyse', 'offre')
-            ->whereIn('candidate_id', [$id1, $id2])
+            ->whereIn('id', [$id1, $id2])
             ->whereHas('analyse')
             ->whereHas('offre', fn ($q) => $q->where('user_id', auth()->id()))
             ->get();
 
-        $app1 = $apps->firstWhere('candidate_id', $id1);
-        $app2 = $apps->firstWhere('candidate_id', $id2);
+        $app1 = $apps->firstWhere('id', $id1);
+        $app2 = $apps->firstWhere('id', $id2);
 
         if (! $app1 || ! $app2) {
             return 'Un ou plusieurs candidats sont introuvables ou non autorisés.';
