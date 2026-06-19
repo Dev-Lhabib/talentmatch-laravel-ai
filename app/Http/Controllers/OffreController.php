@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\OffreRequest;
+use App\Jobs\AnalyseCandidatJob;
+use App\Models\Application;
+use App\Models\Candidate;
 use App\Models\Competence;
 use App\Models\Offre;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -16,7 +20,7 @@ class OffreController extends Controller
     public function index(): View
     {
         $offres = Offre::where('user_id', Auth::id())
-            ->withCount('candidates')
+            ->withCount('applications')
             ->latest()
             ->paginate(15);
 
@@ -50,14 +54,18 @@ class OffreController extends Controller
     {
         $this->authorize('view', $offre);
 
-        $offre->loadCount('candidates');
+        $offre->loadCount('applications');
 
         $offre->load([
-            'candidates' => fn ($q) => $q->orderedByScore(),
-            'candidates.analyse' => fn ($q) => $q->select('candidate_id', 'matching_score', 'recommandation'),
+            'applications' => fn ($q) => $q->with('candidate', 'analyse'),
         ]);
 
-        return view('offres.show', compact('offre'));
+        $applications = $offre->applications;
+
+        $linkedCandidateIds = $applications->pluck('candidate_id')->toArray();
+        $candidates = Candidate::whereNotIn('id', $linkedCandidateIds)->orderBy('name')->get();
+
+        return view('offres.show', compact('offre', 'applications', 'candidates'));
     }
 
     public function edit(Offre $offre): View
@@ -85,5 +93,56 @@ class OffreController extends Controller
         $offre->delete();
 
         return redirect()->route('offres.index');
+    }
+
+    public function assign(Request $request, Offre $offre): RedirectResponse
+    {
+        $candidate = Candidate::findOrFail((int) $request->input('candidate_id'));
+
+        $existing = Application::where('candidate_id', $candidate->id)
+            ->where('offre_id', $offre->id)
+            ->exists();
+
+        if ($existing) {
+            return redirect()->route('offres.show', $offre)
+                ->with('error', 'Ce candidat est déjà lié à cette offre.');
+        }
+
+        $application = Application::create([
+            'candidate_id' => $candidate->id,
+            'offre_id' => $offre->id,
+            'cv_text' => $candidate->cv_text,
+            'status' => 'pending',
+        ]);
+
+        AnalyseCandidatJob::dispatch($application);
+
+        return redirect()->route('offres.show', $offre)
+            ->with('success', "Analyse en cours\u2026");
+    }
+
+    public function analyseAll(Offre $offre): RedirectResponse
+    {
+        $linkedCandidateIds = Application::where('offre_id', $offre->id)
+            ->pluck('candidate_id')
+            ->toArray();
+
+        $candidates = Candidate::whereNotIn('id', $linkedCandidateIds)->get();
+
+        foreach ($candidates as $candidate) {
+            $application = Application::create([
+                'candidate_id' => $candidate->id,
+                'offre_id' => $offre->id,
+                'cv_text' => $candidate->cv_text,
+                'status' => 'pending',
+            ]);
+
+            AnalyseCandidatJob::dispatch($application);
+        }
+
+        $count = $candidates->count();
+
+        return redirect()->route('offres.show', $offre)
+            ->with('success', "Analyse lancée pour {$count} candidat(s).");
     }
 }

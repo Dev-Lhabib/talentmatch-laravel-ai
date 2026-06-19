@@ -4,52 +4,52 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\SoumettreCandidatureRequest;
 use App\Jobs\AnalyseCandidatJob;
+use App\Models\Application;
 use App\Models\Candidate;
 use App\Models\Offre;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class CandidatureController extends Controller
 {
-    public function store(SoumettreCandidatureRequest $request, Offre $offre): RedirectResponse
+    public function store(Offre $offre): RedirectResponse
     {
-        $this->authorize('store', $offre);
+        $candidateId = (int) request('candidate_id');
+        $candidate = Candidate::findOrFail($candidateId);
 
-        $validated = $request->validated();
+        $existing = Application::where('candidate_id', $candidate->id)
+            ->where('offre_id', $offre->id)
+            ->exists();
 
-        $candidate = Candidate::create([
+        if ($existing) {
+            return redirect()->route('offres.show', $offre)
+                ->with('error', 'Ce candidat est déjà lié à cette offre.');
+        }
+
+        $application = Application::create([
+            'candidate_id' => $candidate->id,
             'offre_id' => $offre->id,
-            'user_id' => Auth::id(),
-            'name' => $validated['nom_candidat'],
-            'cv_text' => $validated['cv_text'],
+            'cv_text' => $candidate->cv_text,
             'status' => 'pending',
         ]);
 
-        if (class_exists(AnalyseCandidatJob::class)) {
-            AnalyseCandidatJob::dispatch($candidate);
-        }
+        AnalyseCandidatJob::dispatch($application);
 
         return redirect()->route('offres.show', $offre)
-            ->with('success', 'Analyse en cours…');
+            ->with('success', "Analyse en cours\u2026");
     }
 
-    public function show(Offre $offre, Candidate $candidate): View
+    public function show(Offre $offre, Application $application): View
     {
-        $this->authorize('view', $candidate);
+        $application->load(['candidate', 'analyse']);
 
-        $candidate->load('analyse');
-
-        return view('candidatures.show', compact('offre', 'candidate'));
+        return view('candidatures.show', compact('offre', 'application'));
     }
 
-    public function destroy(Offre $offre, Candidate $candidate): RedirectResponse
+    public function destroy(Offre $offre, Application $application): RedirectResponse
     {
-        $this->authorize('delete', $candidate);
-
-        $candidate->delete();
+        $application->delete();
 
         return redirect()->route('offres.show', $offre);
     }

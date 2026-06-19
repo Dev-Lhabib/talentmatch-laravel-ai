@@ -8,6 +8,7 @@ use App\Ai\Agents\AnalyseCandidatAnalysisAgent;
 use App\Enums\StatutCandidatureEnum;
 use App\Jobs\AnalyseCandidatJob;
 use App\Models\Analyse;
+use App\Models\Application;
 use App\Models\Candidate;
 use App\Models\Offre;
 use App\Models\User;
@@ -22,7 +23,7 @@ class AnalyseCandidatTest extends TestCase
 
     private Offre $offre;
 
-    private Candidate $candidate;
+    private Application $application;
 
     protected function setUp(): void
     {
@@ -34,26 +35,27 @@ class AnalyseCandidatTest extends TestCase
             'description' => 'Nous recherchons un développeur Laravel expérimenté.',
             'experience_min' => 3,
         ]);
-        $this->candidate = Candidate::factory()->for($this->offre)->for($this->user)->create([
+        $candidate = Candidate::factory()->for($this->user)->create([
             'name' => 'Jean Dupont',
             'cv_text' => "Compétences techniques : PHP, Laravel, MySQL, Git, Docker, Vue.js\n\n"
                 ."Expérience professionnelle : Développeur PHP chez TechCorp (2020-2024)\n\n"
                 ."Formation : Master en Informatique\n\n"
                 .'Langues : Français (natif), Anglais (courant)',
         ]);
+        $this->application = Application::factory()->for($candidate)->for($this->offre)->create();
     }
 
     public function test_analysis_success_creates_analyse_record(): void
     {
         AnalyseCandidatAnalysisAgent::fake();
 
-        AnalyseCandidatJob::dispatchSync($this->candidate);
+        AnalyseCandidatJob::dispatchSync($this->application);
 
-        $this->candidate->refresh();
+        $this->application->refresh();
 
-        $this->assertSame(StatutCandidatureEnum::Completed, $this->candidate->status);
+        $this->assertSame(StatutCandidatureEnum::Completed, $this->application->status);
 
-        $analyse = Analyse::where('candidate_id', $this->candidate->id)->first();
+        $analyse = Analyse::where('application_id', $this->application->id)->first();
         $this->assertNotNull($analyse);
         $this->assertNotNull($analyse->matching_score);
         $this->assertIsArray($analyse->competences_extraites);
@@ -70,13 +72,13 @@ class AnalyseCandidatTest extends TestCase
     {
         config()->set('ai.default', 'openai');
 
-        AnalyseCandidatJob::dispatchSync($this->candidate);
+        AnalyseCandidatJob::dispatchSync($this->application);
 
-        $this->candidate->refresh();
+        $this->application->refresh();
 
-        $this->assertSame(StatutCandidatureEnum::Failed, $this->candidate->status);
+        $this->assertSame(StatutCandidatureEnum::Failed, $this->application->status);
         $this->assertDatabaseMissing('analyses', [
-            'candidate_id' => $this->candidate->id,
+            'application_id' => $this->application->id,
         ]);
     }
 
@@ -89,9 +91,9 @@ class AnalyseCandidatTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('AI provider returned an invalid response');
 
-        AnalyseCandidatJob::dispatchSync($this->candidate);
+        AnalyseCandidatJob::dispatchSync($this->application);
 
-        $this->candidate->refresh();
-        $this->assertSame(StatutCandidatureEnum::Processing, $this->candidate->status);
+        $this->application->refresh();
+        $this->assertSame(StatutCandidatureEnum::Processing, $this->application->status);
     }
 }

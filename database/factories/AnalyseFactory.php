@@ -5,12 +5,9 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Models\Analyse;
-use App\Models\Candidate;
+use App\Models\Application;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends Factory<Analyse>
- */
 class AnalyseFactory extends Factory
 {
     protected $model = Analyse::class;
@@ -18,7 +15,7 @@ class AnalyseFactory extends Factory
     public function definition(): array
     {
         return [
-            'candidate_id' => Candidate::factory(),
+            'application_id' => Application::factory(),
             'competences_extraites' => [],
             'annees_experience' => fake()->numberBetween(0, 15),
             'niveau_etudes' => fake()->randomElement(['Bac', 'Bac+2', 'Bac+3', 'Bac+5']),

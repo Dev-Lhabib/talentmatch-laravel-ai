@@ -1,8 +1,12 @@
 @props([
-    "candidate",
-    "analyse",
-    "allCandidates" => collect(),
+    "application",
+    "allApplications" => collect(),
 ])
+
+@php
+    $candidate = $application->candidate;
+    $analyse = $application->analyse;
+@endphp
 
 <div class="flex h-full flex-col rounded-xl border border-border bg-card">
     {{-- Panel Header --}}
@@ -11,22 +15,22 @@
             <div>
                 <h2 class="text-sm font-semibold text-white">Analyse du candidat</h2>
                 <p class="text-xs text-text-secondary">
-                    {{ $candidate->name }} · Offre : {{ $candidate->offre->titre }}
+                    {{ $candidate->name }} · Offre : {{ $application->offre->titre }}
                 </p>
             </div>
 
-            @if($allCandidates->count() > 1)
+            @if($allApplications->count() > 1)
                 <div class="relative inline-block">
                     <select
                         onchange="window.location.href = this.value"
                         class="rounded-lg border border-border bg-card px-3 py-2 pr-8 text-sm text-white outline-none transition focus:border-accent focus:ring-1 focus:ring-accent"
                     >
-                        @foreach($allCandidates as $candidateOption)
+                        @foreach($allApplications as $app)
                             <option
-                                value="{{ route("dashboard.candidates", ["candidate" => $candidateOption->id]) }}"
-                                @selected($candidateOption->id === $candidate->id)
+                                value="{{ route("dashboard.candidates", ["candidate" => $app->candidate_id]) }}"
+                                @selected($app->candidate_id === $application->candidate_id)
                             >
-                                {{ $candidateOption->name }}
+                                {{ $app->candidate->name }}
                             </option>
                         @endforeach
                     </select>
@@ -68,7 +72,7 @@
                     {{-- Profil --}}
                     <div>
                         <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-text-secondary">Profil</p>
-                        <p class="text-sm text-text-secondary">{{ $analyse->annees_experience }} ans d'expérience — {{ $analyse->niveau_etudes }}</p>
+                        <p class="text-sm text-text-secondary">{{ $analyse->annees_experience }} ans d"expérience — {{ $analyse->niveau_etudes }}</p>
                     </div>
 
                     {{-- Langues --}}

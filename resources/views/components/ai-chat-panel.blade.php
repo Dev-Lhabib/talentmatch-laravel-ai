@@ -1,8 +1,12 @@
 @props([
-    "candidate",
+    "application",
     "messages" => collect(),
     "chatStoreUrl" => "#",
 ])
+
+@php
+    $candidate = $application->candidate;
+@endphp
 
 <div class="flex h-full flex-col rounded-xl border border-border bg-card"
      x-data="{ message: "", sending: false, async send() { if (this.message.trim() === "" || this.sending) return; this.sending = true; const msg = this.message; this.message = ""; try { const response = await fetch("{{ $chatStoreUrl }}", { method: "POST", headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": document.querySelector("meta[name=csrf-token]").content, "Accept": "text/html" }, body: JSON.stringify({ message: msg }) }); if (response.redirected) { window.location.href = response.url; } else if (response.ok) { window.location.reload(); } } catch (e) { console.error("Chat error:", e); } finally { this.sending = false; } } }">

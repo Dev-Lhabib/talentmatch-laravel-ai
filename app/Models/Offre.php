@@ -35,9 +35,9 @@ class Offre extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function candidates(): HasMany
+    public function applications(): HasMany
     {
-        return $this->hasMany(Candidate::class);
+        return $this->hasMany(Application::class);
     }
 
     public function competences(): BelongsToMany

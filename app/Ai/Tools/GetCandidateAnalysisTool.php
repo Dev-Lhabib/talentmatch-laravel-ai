@@ -10,7 +10,7 @@ class GetCandidateAnalysisTool
 {
     public function __invoke(int $candidatId): array|string
     {
-        $candidate = Candidate::with('analyse', 'offre')
+        $candidate = Candidate::with('applications.analyse', 'applications.offre')
             ->where('id', $candidatId)
             ->where('user_id', auth()->id())
             ->first();
@@ -19,16 +19,25 @@ class GetCandidateAnalysisTool
             return 'Candidat introuvable ou accès non autorisé.';
         }
 
-        if (! $candidate->analyse) {
-            return "L'analyse de ce candidat n'est pas encore disponible "
-                 ."(statut : {$candidate->status->value}).";
+        $application = $candidate->applications()
+            ->with('analyse', 'offre')
+            ->whereHas('analyse')
+            ->latest()
+            ->first();
+
+        if (! $application) {
+            $latestApp = $candidate->applications()->latest()->first();
+            $status = $latestApp?->status?->value ?? 'inconnu';
+
+            return 'L"analyse de ce candidat n"est pas encore disponible '
+                 ."(statut : {$status}).";
         }
 
-        $a = $candidate->analyse;
+        $a = $application->analyse;
 
         return [
             'candidat' => $candidate->name,
-            'offre' => $candidate->offre->titre,
+            'offre' => $application->offre->titre,
             'matching_score' => $a->matching_score,
             'recommandation' => $a->recommandation->value,
             'justification' => $a->justification,

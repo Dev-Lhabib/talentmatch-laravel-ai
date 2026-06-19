@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Enums\StatutCandidatureEnum;
-use App\Models\Candidate;
+use App\Models\Application;
 use App\Services\ConversationService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -18,26 +18,27 @@ class DashboardController extends Controller
 
     public function candidates(Request $request): View
     {
-        $candidates = Candidate::where('status', StatutCandidatureEnum::Completed)
-            ->with(['analyse', 'offre'])
-            ->orderedByScore()
-            ->get();
+        $applications = Application::where('status', StatutCandidatureEnum::Completed)
+            ->with(['candidate', 'analyse', 'offre'])
+            ->whereHas('analyse')
+            ->get()
+            ->sortByDesc(fn (Application $app) => $app->analyse?->matching_score ?? 0);
 
-        $selectedCandidate = null;
+        $selectedApp = null;
         $conversation = null;
         $messages = collect();
 
-        if ($candidates->isNotEmpty()) {
+        if ($applications->isNotEmpty()) {
             $selectedId = $request->query('candidate');
-            $selectedCandidate = $selectedId
-                ? $candidates->firstWhere('id', (int) $selectedId)
-                : $candidates->first();
+            $selectedApp = $selectedId
+                ? $applications->firstWhere('candidate_id', (int) $selectedId)
+                : $applications->first();
 
-            $selectedCandidate = $selectedCandidate ?? $candidates->first();
-            $conversation = $this->conversationService->resolve($selectedCandidate);
+            $selectedApp = $selectedApp ?? $applications->first();
+            $conversation = $this->conversationService->resolve($selectedApp);
             $messages = $conversation->messages()->orderBy('created_at')->get();
         }
 
-        return view('dashboard.candidates', compact('selectedCandidate', 'candidates', 'conversation', 'messages'));
+        return view('dashboard.candidates', compact('selectedApp', 'applications', 'conversation', 'messages'));
     }
 }

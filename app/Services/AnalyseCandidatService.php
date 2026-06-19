@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Ai\Agents\AnalyseCandidatAnalysisAgent;
-use App\Models\Candidate;
+use App\Models\Application;
 use Illuminate\Support\Collection;
 
 class AnalyseCandidatService
@@ -14,9 +14,10 @@ class AnalyseCandidatService
         private readonly AnalyseCandidatAnalysisAgent $agent,
     ) {}
 
-    public function analyser(Candidate $candidate): Collection
+    public function analyser(Application $application): Collection
     {
-        $offre = $candidate->offre;
+        $candidate = $application->candidate;
+        $offre = $application->offre;
 
         $prompt = $this->buildPrompt($offre, $candidate);
 
@@ -36,12 +37,12 @@ class AnalyseCandidatService
         ]);
     }
 
-    private function buildPrompt($offre, Candidate $candidate): string
+    private function buildPrompt($offre, $candidate): string
     {
         $competences = $this->formatCompetences($offre->competences);
 
         return <<<EOT
-        ## Offre d'emploi
+        ## Offre d"emploi
         Titre : {$offre->titre}
         Description : {$offre->description}
         Compétences requises : {$competences}
@@ -51,7 +52,7 @@ class AnalyseCandidatService
         Nom : {$candidate->name}
         {$candidate->cv_text}
 
-        Analyse ce CV par rapport à l'offre et retourne UNIQUEMENT le JSON structuré conforme au schéma. N'utilise aucun outil.
+        Analyse ce CV par rapport à l"offre et retourne UNIQUEMENT le JSON structuré conforme au schéma. N"utilise aucun outil.
         EOT;
     }
 
@@ -62,8 +63,8 @@ class AnalyseCandidatService
         }
 
         if (empty($competences)) {
-            return 'Non spécifiées — base ton évaluation sur la description du poste et '
-                 ."l'expérience générale du candidat.";
+            return "Non spécifiées \u2014 base ton évaluation sur la description du poste et "
+                 .'l"expérience générale du candidat.';
         }
 
         return implode(', ', $competences);

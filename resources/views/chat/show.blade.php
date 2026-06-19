@@ -2,21 +2,21 @@
 
 @section("content")
     <div class="mb-4">
-        <a href="{{ route("offres.candidatures.show", [$offre, $candidate]) }}" class="text-sm text-accent hover:underline">← Retour à la candidature</a>
+        <a href="{{ route("offres.candidatures.show", [$offre, $application]) }}" class="text-sm text-accent hover:underline">← Retour à la candidature</a>
     </div>
 
     <div class="mb-6 rounded-xl border border-border bg-card p-5">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-base font-semibold text-white">Chat — {{ $candidate->name }}</h1>
+                <h1 class="text-base font-semibold text-white">Chat — {{ $application->candidate->name }}</h1>
                 <p class="mt-1 text-sm text-text-secondary">
                     Offre : {{ $offre->titre }}
                 </p>
             </div>
-            @if($candidate->analyse)
+            @if($application->analyse)
                 <div class="text-right">
-                    <x-status-badge :status="$candidate->analyse->recommandation->value" />
-                    <span class="ml-2 text-sm font-bold text-white">{{ $candidate->analyse->matching_score }}/100</span>
+                    <x-status-badge :status="$application->analyse->recommandation->value" />
+                    <span class="ml-2 text-sm font-bold text-white">{{ $application->analyse->matching_score }}/100</span>
                 </div>
             @endif
         </div>
@@ -45,7 +45,7 @@
         </button>
         <button type="button" class="rounded-lg bg-card border border-border px-3 py-1.5 text-xs text-text-secondary transition hover:bg-card-hover hover:text-white"
             onclick="document.getElementById("message").value="Quelles questions poser en entretien ?"; document.getElementById("chat-form").submit();">
-            Questions d'entretien ?
+            Questions d"entretien ?
         </button>
         <button type="button" class="rounded-lg bg-card border border-border px-3 py-1.5 text-xs text-text-secondary transition hover:bg-card-hover hover:text-white"
             onclick="document.getElementById("message").value="Quels sont ses points faibles ?"; document.getElementById("chat-form").submit();">
@@ -53,7 +53,7 @@
         </button>
     </div>
 
-    <form id="chat-form" method="POST" action="{{ route("chat.store", [$offre, $candidate]) }}">
+    <form id="chat-form" method="POST" action="{{ route("chat.store", [$offre, $application]) }}">
         @csrf
         <div class="flex gap-2">
             <textarea

@@ -4,24 +4,23 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\Candidate;
-use App\Models\Offre;
+use App\Models\Application;
 use App\Models\User;
 
 class CandidatePolicy
 {
-    public function store(User $user, Offre $offre): bool
+    public function store(User $user, Application $application): bool
     {
-        return $user->id === $offre->user_id;
+        return $user->id === $application->offre->user_id;
     }
 
-    public function view(User $user, Candidate $candidate): bool
+    public function view(User $user, Application $application): bool
     {
-        return $user->id === $candidate->offre->user_id;
+        return $user->id === $application->offre->user_id;
     }
 
-    public function delete(User $user, Candidate $candidate): bool
+    public function delete(User $user, Application $application): bool
     {
-        return $user->id === $candidate->offre->user_id;
+        return $user->id === $application->offre->user_id;
     }
 }

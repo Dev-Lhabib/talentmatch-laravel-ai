@@ -5,25 +5,25 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\StatutCandidatureEnum;
-use App\Models\Candidate;
+use App\Models\Application;
 use App\Models\Conversation;
 use Illuminate\Support\Collection;
 
 class ConversationService
 {
-    public function resolve(Candidate $candidate): Conversation
+    public function resolve(Application $application): Conversation
     {
-        if ($candidate->status !== StatutCandidatureEnum::Completed) {
+        if ($application->status !== StatutCandidatureEnum::Completed) {
             throw new \RuntimeException(
-                "L'analyse doit être terminée pour démarrer une conversation."
+                'L"analyse doit être terminée pour démarrer une conversation.'
             );
         }
 
         return Conversation::firstOrCreate(
-            ['candidate_id' => $candidate->id],
+            ['application_id' => $application->id],
             [
                 'user_id' => auth()->id(),
-                'title' => "Discussion sur {$candidate->name}",
+                'title' => "Discussion sur {$application->candidate->name}",
             ]
         );
     }

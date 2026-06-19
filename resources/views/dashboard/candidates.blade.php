@@ -3,20 +3,19 @@
 @section("title", "Dashboard Candidats")
 
 @section("content")
-    @if($selectedCandidate)
+    @if($selectedApp)
         <div class="grid h-full min-h-0 grid-cols-2 gap-6">
             {{-- Left Panel: Candidate Analysis --}}
             <x-candidate-analysis-panel
-                :candidate="$selectedCandidate"
-                :analyse="$selectedCandidate->analyse"
-                :all-candidates="$candidates"
+                :application="$selectedApp"
+                :all-applications="$applications"
             />
 
             {{-- Right Panel: AI Chat --}}
             <x-ai-chat-panel
-                :candidate="$selectedCandidate"
+                :application="$selectedApp"
                 :messages="$messages"
-                :chat-store-url="$conversation ? route("chat.store", [$selectedCandidate->offre, $selectedCandidate]) : "#""
+                :chat-store-url="$conversation ? route(\"chat.store\", [$selectedApp->offre, $selectedApp]) : \"#\""
             />
         </div>
     @else
@@ -26,7 +25,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
                 <h3 class="mt-4 text-lg font-semibold text-white">Aucune candidature analysée</h3>
-                <p class="mt-2 text-sm text-text-secondary">Soumettez un CV pour voir les résultats de l'analyse IA ici.</p>
+                <p class="mt-2 text-sm text-text-secondary">Soumettez un CV pour voir les résultats de l"analyse IA ici.</p>
                 <a href="{{ route("offres.index") }}" class="mt-4 inline-flex items-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition hover:bg-accent/80">
                     Voir les offres
                 </a>

@@ -29,7 +29,7 @@
                                 {{ $offre->status === 'open' ? 'Ouvert' : ($offre->status === 'closed' ? 'Fermé' : 'Brouillon') }}
                             </span>
                             <span class="rounded-full bg-bg px-2.5 py-0.5 text-xs text-text-secondary border border-border">
-                                {{ $offre->candidates_count }} candidature{{ $offre->candidates_count > 1 ? 's' : '' }}
+                                {{ $offre->applications_count }} candidature{{ $offre->applications_count > 1 ? 's' : '' }}
                             </span>
                         </div>
                     </div>

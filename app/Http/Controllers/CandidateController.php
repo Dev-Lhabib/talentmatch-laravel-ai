@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CandidateRequest;
+use App\Jobs\AnalyseCandidatJob;
+use App\Models\Application;
 use App\Models\Candidate;
+use App\Models\Offre;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -40,7 +43,9 @@ class CandidateController extends Controller
 
     public function show(Candidate $candidate): View
     {
-        return view('candidates.show', compact('candidate'));
+        $offres = Offre::latest()->get();
+
+        return view('candidates.show', compact('candidate', 'offres'));
     }
 
     public function edit(Candidate $candidate): View
@@ -62,5 +67,31 @@ class CandidateController extends Controller
 
         return redirect()->route('candidates.index')
             ->with('success', 'Candidat supprimé avec succès.');
+    }
+
+    public function assign(Request $request, Candidate $candidate): RedirectResponse
+    {
+        $offre = Offre::findOrFail((int) $request->input('offre_id'));
+
+        $existing = Application::where('candidate_id', $candidate->id)
+            ->where('offre_id', $offre->id)
+            ->exists();
+
+        if ($existing) {
+            return redirect()->route('candidates.show', $candidate)
+                ->with('error', 'Ce candidat est déjà lié à cette offre.');
+        }
+
+        $application = Application::create([
+            'candidate_id' => $candidate->id,
+            'offre_id' => $offre->id,
+            'cv_text' => $candidate->cv_text,
+            'status' => 'pending',
+        ]);
+
+        AnalyseCandidatJob::dispatch($application);
+
+        return redirect()->route('offres.show', $offre)
+            ->with('success', "Analyse en cours\u2026");
     }
 }

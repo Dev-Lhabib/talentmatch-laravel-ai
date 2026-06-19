@@ -4,46 +4,43 @@ declare(strict_types=1);
 
 namespace App\Ai\Tools;
 
-use App\Models\Candidate;
+use App\Models\Application;
 
 class CompareCandidatesTool
 {
     public function __invoke(int $id1, int $id2): array|string
     {
-        $candidates = Candidate::with('analyse', 'offre')
-            ->whereIn('id', [$id1, $id2])
-            ->where('user_id', auth()->id())
+        $apps = Application::with('candidate', 'analyse', 'offre')
+            ->whereIn('candidate_id', [$id1, $id2])
+            ->whereHas('analyse')
+            ->where('user_id', auth()->id(), '=', null)
             ->get();
 
-        if ($candidates->count() !== 2) {
+        $app1 = $apps->firstWhere('candidate_id', $id1);
+        $app2 = $apps->firstWhere('candidate_id', $id2);
+
+        if (! $app1 || ! $app2) {
             return 'Un ou plusieurs candidats sont introuvables ou non autorisés.';
         }
 
-        $c1 = $candidates->firstWhere('id', $id1);
-        $c2 = $candidates->firstWhere('id', $id2);
-
-        if ($c1->offre_id !== $c2->offre_id) {
-            return "Les deux candidats doivent appartenir à la même offre d'emploi.";
-        }
-
-        if (! $c1->analyse || ! $c2->analyse) {
-            return "L'une des deux analyses n'est pas encore disponible.";
+        if ($app1->offre_id !== $app2->offre_id) {
+            return 'Les deux candidats doivent appartenir à la même offre d"emploi.';
         }
 
         return [
-            'offre' => $c1->offre->titre,
-            'candidat_1' => $this->formatAnalyse($c1),
-            'candidat_2' => $this->formatAnalyse($c2),
+            'offre' => $app1->offre->titre,
+            'candidat_1' => $this->formatAnalyse($app1),
+            'candidat_2' => $this->formatAnalyse($app2),
         ];
     }
 
-    private function formatAnalyse(Candidate $c): array
+    private function formatAnalyse(Application $app): array
     {
-        $a = $c->analyse;
+        $a = $app->analyse;
 
         return [
-            'id' => $c->id,
-            'nom' => $c->name,
+            'id' => $app->candidate->id,
+            'nom' => $app->candidate->name,
             'matching_score' => $a->matching_score,
             'recommandation' => $a->recommandation->value,
             'points_forts' => $a->points_forts,

@@ -15,7 +15,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Guest routes
 Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
@@ -23,7 +22,6 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 
-// Auth routes
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
@@ -39,7 +37,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
 
     Route::resource('candidates', CandidateController::class);
+    Route::post('candidates/{candidate}/assign', [CandidateController::class, 'assign'])->name('candidates.assign');
+
     Route::resource('offres', OffreController::class);
+    Route::post('offres/{offre}/assign', [OffreController::class, 'assign'])->name('offres.assign');
+    Route::post('offres/{offre}/analyse-all', [OffreController::class, 'analyseAll'])->name('offres.analyse-all');
+
     Route::resource('offres.candidatures', CandidatureController::class)->only(['store', 'show', 'destroy']);
     Route::get('/offres/{offre}/candidatures/{candidature}/chat', [ChatController::class, 'show'])->name('chat.show');
     Route::post('/offres/{offre}/candidatures/{candidature}/chat', [ChatController::class, 'store'])->name('chat.store');
