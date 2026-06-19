@@ -13,7 +13,7 @@ class CompareCandidatesTool
         $apps = Application::with('candidate', 'analyse', 'offre')
             ->whereIn('candidate_id', [$id1, $id2])
             ->whereHas('analyse')
-            ->where('user_id', auth()->id(), '=', null)
+            ->whereHas('offre', fn ($q) => $q->where('user_id', auth()->id()))
             ->get();
 
         $app1 = $apps->firstWhere('candidate_id', $id1);

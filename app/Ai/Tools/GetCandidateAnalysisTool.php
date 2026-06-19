@@ -4,20 +4,34 @@ declare(strict_types=1);
 
 namespace App\Ai\Tools;
 
-use App\Models\Candidate;
+use App\Models\Application;
 
 class GetCandidateAnalysisTool
 {
     public function __invoke(int $candidatId): array|string
     {
-        $candidate = Candidate::with('applications.analyse', 'applications.offre')
-            ->where('id', $candidatId)
-            ->where('user_id', auth()->id())
+        $application = Application::with('candidate', 'analyse', 'offre')
+            ->where('candidate_id', $candidatId)
+            ->whereHas('offre', fn ($q) => $q->where('user_id', auth()->id()))
+            ->whereHas('analyse')
+            ->latest()
             ->first();
 
-        if (! $candidate) {
-            return 'Candidat introuvable ou accès non autorisé.';
+        if (! $application) {
+            $latestApp = Application::with('offre')
+                ->where('candidate_id', $candidatId)
+                ->whereHas('offre', fn ($q) => $q->where('user_id', auth()->id()))
+                ->latest()
+                ->first();
+
+            $status = $latestApp?->status?->value ?? 'inconnu';
+
+            return 'L"analyse de ce candidat n"est pas encore disponible '
+                 ."(statut : {$status}).";
         }
+
+        $candidate = $application->candidate;
+        $a = $application->analyse;
 
         $application = $candidate->applications()
             ->with('analyse', 'offre')

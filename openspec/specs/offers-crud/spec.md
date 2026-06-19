@@ -25,30 +25,38 @@ The system SHALL allow authenticated users to create job offers with a title, de
 - **THEN** the system syncs the competences to the `offre_competence` pivot table
 
 ### Requirement: Offer listing
-The system SHALL display a paginated list of the authenticated user's offers with candidature counts.
+The system SHALL display a paginated list of the authenticated user's offers with application counts.
 
 #### Scenario: Paginated offer index
 - **WHEN** an authenticated user visits GET /offres
-- **THEN** the system returns a paginated list (15 per page) of offers belonging to that user, with `candidatures_count` eager loaded
+- **THEN** the system returns a paginated list (15 per page) of offers belonging to that user, with `applications_count` eager loaded
 
 #### Scenario: Empty state
 - **WHEN** an authenticated user with no offers visits GET /offres
 - **THEN** the system displays an empty state message
 
 ### Requirement: Offer detail view
-The system SHALL display offer details including candidatures with analysis scores.
+The system SHALL display offer details including applications with analysis scores.
 
-#### Scenario: Offer show with candidatures
+#### Scenario: Offer show with applications
 - **WHEN** an authenticated user visits GET /offres/{offre}
-- **THEN** the system returns the offer with its competences, and candidatures eager loaded with their analyses (matching_score, recommandation)
+- **THEN** the system returns the offer with its competences, and applications eager loaded with their candidate and analysis data (matching_score, recommandation)
 
-#### Scenario: Candidatures displayed with score, status, and rank
+#### Scenario: Applications displayed with score, status, and rank
 - **WHEN** an authenticated offer owner views the offer detail page
-- **THEN** the system displays candidatures sorted by score with their scores, status badges, and rank indicators
+- **THEN** the system displays applications sorted by score with their candidate name, scores, status badges, and rank indicators
 
-#### Scenario: Pending candidature badge
-- **WHEN** a candidature has no analysis yet
+#### Scenario: Pending application badge
+- **WHEN** an application has no analysis yet
 - **THEN** the system displays "En attente" instead of a score
+
+#### Scenario: Candidate assignment dropdown
+- **WHEN** an authenticated user visits GET /offres/{offre}
+- **THEN** the page includes a dropdown listing all candidates and an "Analyser" button to create a new application
+
+#### Scenario: Analyse all unassigned candidates
+- **WHEN** an authenticated user clicks "Analyser tous les candidats"
+- **THEN** the system creates applications for all candidates not yet linked to this offer and dispatches AnalyseCandidateJob for each
 
 ### Requirement: Offer update
 The system SHALL allow the owner to edit and update their offers.
@@ -62,11 +70,11 @@ The system SHALL allow the owner to edit and update their offers.
 - **THEN** the system syncs the new competences list to the pivot table
 
 ### Requirement: Offer deletion
-The system SHALL allow the owner to delete their offers with cascade removal of candidatures and analyses.
+The system SHALL allow the owner to delete their offers with cascade removal of applications and analyses.
 
 #### Scenario: Successful offer deletion
 - **WHEN** the offer owner confirms deletion
-- **THEN** the system deletes the offer, its candidatures, analyses, and associated data, then redirects to the index
+- **THEN** the system deletes the offer, its applications, analyses, and associated data, then redirects to the index
 
 ### Requirement: User authorization
 The system SHALL enforce that users can only access, modify, or delete their own offers using policy-based authorization via the `AuthorizesRequests` trait.
@@ -96,11 +104,11 @@ The system SHALL use eager loading to prevent N+1 queries on offer listings and 
 
 #### Scenario: Index eager loading
 - **WHEN** the offer index page is rendered
-- **THEN** the query uses `withCount('candidatures')` and Debugbar confirms no N+1 queries
+- **THEN** the query uses `withCount('applications')` and Debugbar confirms no N+1 queries
 
 #### Scenario: Show eager loading
 - **WHEN** the offer detail page is rendered
-- **THEN** the query uses `with('candidatures.analyse')` and Debugbar confirms no N+1 queries
+- **THEN** the query uses `with('applications.candidate.analyse')` and Debugbar confirms no N+1 queries
 
 ### Requirement: Offer (English) creation
 The system SHALL allow authenticated users to create job offers (English entity) with a title, description, optional minimum experience, optional required skills (as a JSON array of strings), and a status (default: open).

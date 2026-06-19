@@ -52,8 +52,8 @@ class OffreControllerTest extends TestCase
     public function test_index_displays_application_count(): void
     {
         $offre = Offre::factory()->for($this->user)->create();
-        $candidate1 = Candidate::factory()->for($this->user)->create();
-        $candidate2 = Candidate::factory()->for($this->user)->create();
+        $candidate1 = Candidate::factory()->create();
+        $candidate2 = Candidate::factory()->create();
         Application::factory()->for($candidate1)->for($offre)->create();
         Application::factory()->for($candidate2)->for($offre)->create();
 
@@ -149,7 +149,7 @@ class OffreControllerTest extends TestCase
     public function test_show_displays_application_with_score(): void
     {
         $offre = Offre::factory()->for($this->user)->create();
-        $candidate = Candidate::factory()->for($this->user)->create();
+        $candidate = Candidate::factory()->create();
         $application = Application::factory()->for($candidate)->for($offre)->create();
         $application->analyse()->create([
             'matching_score' => 85,
@@ -170,7 +170,7 @@ class OffreControllerTest extends TestCase
     public function test_show_displays_pending_badge(): void
     {
         $offre = Offre::factory()->for($this->user)->create();
-        $candidate = Candidate::factory()->for($this->user)->create();
+        $candidate = Candidate::factory()->create();
         Application::factory()->for($candidate)->for($offre)->create();
 
         $this->actingAs($this->user)

@@ -6,57 +6,132 @@
 
 @php
     $candidate = $application->candidate;
+    $messagesJson = $messages->map(fn ($m) => [
+        "role" => $m->role === "user" ? "user" : "assistant",
+        "content" => $m->content,
+        "label" => $m->role === "user" ? "HR Agent" : "AI",
+    ])->values()->toJson();
 @endphp
 
 <div class="flex h-full flex-col rounded-xl border border-border bg-card"
-     x-data="{ message: "", sending: false, async send() { if (this.message.trim() === "" || this.sending) return; this.sending = true; const msg = this.message; this.message = ""; try { const response = await fetch("{{ $chatStoreUrl }}", { method: "POST", headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": document.querySelector("meta[name=csrf-token]").content, "Accept": "text/html" }, body: JSON.stringify({ message: msg }) }); if (response.redirected) { window.location.href = response.url; } else if (response.ok) { window.location.reload(); } } catch (e) { console.error("Chat error:", e); } finally { this.sending = false; } } }">
+     x-data="{
+        messages: {{ $messagesJson }},
+        message: '',
+        sending: false,
+        async send() {
+            if (this.message.trim() === '' || this.sending) return;
+            const msg = this.message;
+            this.messages.push({ role: 'user', content: msg, label: 'HR Agent' });
+            this.message = '';
+            this.sending = true;
+            try {
+                const response = await fetch('{{ $chatStoreUrl }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ message: msg }),
+                });
+                if (!response.ok) {
+                    const err = await response.json();
+                    this.messages.push({ role: 'assistant', content: err.error || 'Erreur', label: 'AI' });
+                    return;
+                }
+                const data = await response.json();
+                this.messages.push({ role: 'assistant', content: data.content, label: 'AI' });
+            } catch (e) {
+                console.error('Chat error:', e);
+                this.messages.push({ role: 'assistant', content: 'Erreur de connexion.', label: 'AI' });
+            } finally {
+                this.sending = false;
+                this.$nextTick(() => {
+                    const el = this.$refs.thread;
+                    if (el) el.scrollTop = el.scrollHeight;
+                });
+            }
+        }
+     }">
 
     {{-- Panel Header --}}
     <div class="flex items-center justify-between border-b border-border px-5 py-3">
         <h2 class="text-sm font-semibold text-white">AI Assistant</h2>
-        <button class="p-1 text-text-secondary transition hover:text-white">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </button>
     </div>
 
     {{-- Chat Thread --}}
-    <div class="flex-1 overflow-y-auto px-5 py-4">
-        @if($messages->isEmpty())
+    <div x-ref="thread" class="flex-1 overflow-y-auto px-5 py-4">
+        <template x-if="messages.length === 0">
             <div class="flex h-full items-center justify-center">
-                <p class="text-sm text-text-secondary">Posez une question sur {{ $candidate->name }}...</p>
+                <p class="text-sm text-text-secondary">Posez une question sur <span x-text="'{{ $candidate->name }}'"></span>...</p>
             </div>
-        @else
-            <div class="space-y-4">
-                @foreach($messages as $msg)
-                    <x-chat-message
-                        :role="$msg->role === "user" ? "user" : "assistant""
-                        :content="$msg->content"
-                        :label="$msg->role === "user" ? "HR Agent" : "AI""
-                    />
-                @endforeach
-            </div>
-        @endif
+        </template>
+        <div class="space-y-4">
+            <template x-for="(msg, i) in messages" :key="i">
+                <div class="flex items-start gap-3">
+                    <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full"
+                         :class="msg.role === 'user' ? 'bg-accent' : 'bg-teal'">
+                        <template x-if="msg.role === 'user'">
+                            <span class="text-xs font-bold text-white" x-text="msg.label.charAt(0)"></span>
+                        </template>
+                        <template x-if="msg.role !== 'user'">
+                            <svg class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                            </svg>
+                        </template>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="mb-1 text-xs font-semibold text-white" x-text="msg.label"></p>
+                        <div class="rounded-lg rounded-tl-none bg-card px-4 py-2.5 text-sm leading-relaxed text-text-secondary border border-border" x-text="msg.content"></div>
+                    </div>
+                </div>
+            </template>
+            <template x-if="sending">
+                <div class="flex items-start gap-3">
+                    <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-teal">
+                        <svg class="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="mb-1 text-xs font-semibold text-white">AI</p>
+                        <div class="rounded-lg rounded-tl-none bg-card px-4 py-2.5 text-sm text-text-secondary border border-border">
+                            <span class="animate-pulse">Réflexion...</span>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    {{-- Quick Actions --}}
+    <div class="flex flex-wrap gap-2 border-t border-border px-5 py-2">
+        <button type="button" class="rounded bg-card border border-border px-2.5 py-1 text-xs text-text-secondary transition hover:bg-card-hover hover:text-white"
+            @click="message = 'Pourquoi ce score ?'; $nextTick(() => { const inp = document.querySelector('#chat-input'); if(inp) inp.focus(); })">
+            Pourquoi ce score ?
+        </button>
+        <button type="button" class="rounded bg-card border border-border px-2.5 py-1 text-xs text-text-secondary transition hover:bg-card-hover hover:text-white"
+            @click="message = 'Quelles questions poser en entretien ?'; $nextTick(() => { const inp = document.querySelector('#chat-input'); if(inp) inp.focus(); })">
+            Questions entretien ?
+        </button>
+        <button type="button" class="rounded bg-card border border-border px-2.5 py-1 text-xs text-text-secondary transition hover:bg-card-hover hover:text-white"
+            @click="message = 'Quels sont ses points faibles ?'; $nextTick(() => { const inp = document.querySelector('#chat-input'); if(inp) inp.focus(); })">
+            Points faibles ?
+        </button>
     </div>
 
     {{-- Input Bar --}}
     <div class="border-t border-border px-5 py-3">
         <div class="flex items-center gap-2">
-            <button class="flex-shrink-0 p-2 text-text-secondary transition hover:text-white">
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                </svg>
-            </button>
-
             <input
+                id="chat-input"
                 type="text"
                 x-model="message"
                 @keydown.enter.prevent="send()"
-                placeholder="Ask something about {{ $candidate->name }}..."
+                placeholder="Poser une question..."
                 class="flex-1 rounded-lg border border-teal-dark bg-transparent px-4 py-2.5 text-sm text-white placeholder-text-secondary outline-none transition focus:border-teal focus:ring-1 focus:ring-teal"
             >
-
             <button
                 @click="send()"
                 :disabled="sending"

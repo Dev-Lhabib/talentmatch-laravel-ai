@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CandidateController;
@@ -46,4 +47,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('offres.candidatures', CandidatureController::class)->only(['store', 'show', 'destroy']);
     Route::get('/offres/{offre}/candidatures/{candidature}/chat', [ChatController::class, 'show'])->name('chat.show');
     Route::post('/offres/{offre}/candidatures/{candidature}/chat', [ChatController::class, 'store'])->name('chat.store');
+
+    Route::get('/applications/{application}', [ApplicationController::class, 'show'])->name('applications.show');
+    Route::post('/applications/{application}/retry', [ApplicationController::class, 'retry'])->name('applications.retry');
+    Route::post('/applications/{application}/chat', [ApplicationController::class, 'jsonChat'])->name('applications.chat');
 });

@@ -2,56 +2,54 @@
 
 ## Purpose
 
-Persist conversations between the RH agent and AI assistant, linked to specific candidatures, so the agent can ask follow-up questions without repeating context at every message.
+Persist conversations between the RH agent and AI assistant, linked to specific applications, so the agent can ask follow-up questions without repeating context at every message.
 
 ## Requirements
 
-### Requirement: Conversation creation on first question
-The system SHALL create a conversation linked to a candidature when the first question is asked about a completed candidature.
+### Requirement: Conversation belongs to Application
+The system SHALL store each conversation linked to an Application via `application_id` (unique FK), so that every application has exactly one conversation for the AI assistant chat.
 
-#### Scenario: First question creates conversation
-- **WHEN** an authenticated user asks a question about a candidature with status `completed` and no existing conversation
-- **THEN** the system creates an `AiConversation` record with `candidature_id` and `user_id` fields
+#### Scenario: Conversation created per application
+- **WHEN** an Application is created
+- **THEN** the system creates a Conversation record with `application_id` set to the new application's id
+- **AND** the Conversation model has a `belongsTo(Application::class)` relationship
 
-#### Scenario: First question on non-completed candidature returns error
-- **WHEN** an authenticated user asks a question about a candidature with status other than `completed`
-- **THEN** the system returns an error message indicating analysis must be completed first
-
-### Requirement: Conversation reuse for follow-up questions
-The system SHALL reuse existing conversations for subsequent questions on the same candidature.
+#### Scenario: Messages stored with role
+- **WHEN** a user or AI sends a message in the chat
+- **THEN** the message is stored in the `messages` table with `conversation_id`, `role` (user/assistant), and `content`
+- **AND** the Message model has a `belongsTo(Conversation::class)` relationship
 
 #### Scenario: Follow-up question reuses conversation
-- **WHEN** an authenticated user asks a follow-up question about a candidature that already has a conversation
-- **THEN** the system reuses the existing conversation (no new `AiConversation` record created)
+- **WHEN** an authenticated user asks a follow-up question about an application that already has a conversation
+- **THEN** the system reuses the existing conversation (no new Conversation record created)
 
-### Requirement: Message persistence
-The system SHALL persist all messages (user and assistant) in the `ai_messages` table.
+### Requirement: Conversation context for LLM
+The system SHALL build LLM prompts from the conversation's associated application context.
 
-#### Scenario: User message is persisted
-- **WHEN** a user sends a message in a conversation
-- **THEN** the system creates an `AiMessage` record with role `user` and the message content
+#### Scenario: Prompt includes full context
+- **WHEN** the AI responds to a user message
+- **THEN** the prompt includes: offer title, candidate name, full CV text, analysis data (score, competences, strengths, gaps), and the last 10 messages
 
-#### Scenario: Assistant response is persisted
-- **WHEN** the agent responds to a user message
-- **THEN** the system creates an `AiMessage` record with role `assistant` and the response content
+### Requirement: Chat endpoint with context-aware LLM
+The system SHALL provide `POST /applications/{application}/chat` that accepts a user message, builds a context-aware LLM prompt, returns the AI response as JSON.
 
-### Requirement: Conversation context injection
-The system SHALL load previous messages and include them in the agent's context for each call.
-
-#### Scenario: Agent receives conversation history
-- **WHEN** the agent is called for a follow-up question
-- **THEN** the system loads the last 20 messages from the conversation and includes them in the prompt
+#### Scenario: User sends a message
+- **WHEN** a user POSTs `{ "message": "..." }` to `/applications/{application}/chat`
+- **THEN** the system appends the user message to the messages table
+- **AND** builds an LLM prompt containing: offer title, candidate name, CV text, analysis score/competences/strengths/gaps, and last 10 messages
+- **AND** calls the AI model and saves the assistant response
+- **AND** returns the assistant response as JSON
 
 ### Requirement: Conversation authorization
-The system SHALL enforce that users can only access conversations for candidatures they own.
+The system SHALL enforce that users can only access conversations for applications they own (via `application.offre.user_id`).
 
 #### Scenario: Accessing another user's conversation returns 403
-- **WHEN** an authenticated user tries to access a conversation for a candidature belonging to another user
+- **WHEN** an authenticated user tries to access a conversation for an application belonging to another user
 - **THEN** the system returns a 403 Forbidden response
 
 ### Requirement: Cascade deletion
-The system SHALL delete conversations and messages when the associated candidature is deleted.
+The system SHALL delete conversations and messages when the associated application is deleted.
 
-#### Scenario: Deleting candidature deletes conversation
-- **WHEN** a candidature with an associated conversation is deleted
+#### Scenario: Deleting application deletes conversation
+- **WHEN** an application with an associated conversation is deleted
 - **THEN** the system deletes the conversation and all its messages in cascade

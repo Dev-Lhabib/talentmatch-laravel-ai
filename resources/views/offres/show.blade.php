@@ -136,7 +136,7 @@
                         @else
                             <span class="min-w-[2rem]"></span>
                         @endif
-                        <a href="{{ route("offres.candidatures.show", [$offre, $application]) }}" class="flex-1 text-decoration-none">
+                        <a href="{{ route("applications.show", $application) }}" class="flex-1 text-decoration-none">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <h3 class="text-sm font-medium text-white">{{ $application->candidate->name }}</h3>

@@ -35,7 +35,7 @@ class AnalyseCandidatTest extends TestCase
             'description' => 'Nous recherchons un développeur Laravel expérimenté.',
             'experience_min' => 3,
         ]);
-        $candidate = Candidate::factory()->for($this->user)->create([
+        $candidate = Candidate::factory()->create([
             'name' => 'Jean Dupont',
             'cv_text' => "Compétences techniques : PHP, Laravel, MySQL, Git, Docker, Vue.js\n\n"
                 ."Expérience professionnelle : Développeur PHP chez TechCorp (2020-2024)\n\n"

@@ -18,7 +18,7 @@ The system SHALL have a `candidates` table with the following columns:
 
 The system SHALL have an `App\Models\Candidate` Eloquent model with:
 - `$fillable`: `name`, `email`, `phone`, `cv_text`
-- A `hasMany('applications')` relationship stub (even if `Application` model/table does not exist yet)
+- A `hasMany("applications")` relationship stub (even if `Application` model/table does not exist yet)
 
 #### Scenario: Candidate migration runs
 
@@ -42,7 +42,7 @@ Only authenticated users SHALL access this page.
 
 - **WHEN** an authenticated user navigates to `/candidates`
 - **THEN** they see a page titled "Candidates"
-- **AND** each candidate's name is displayed
+- **AND** each candidate name is displayed
 - **AND** the list is paginated (15 per page)
 
 #### Scenario: Search filters by name
@@ -74,7 +74,7 @@ Validation rules:
 
 - **WHEN** the user submits valid data
 - **THEN** a new `Candidate` record is created in the database
-- **AND** the user is redirected to the candidate's show page
+- **AND** the user is redirected to the candidate show page
 - **AND** a success flash message is displayed
 
 #### Scenario: Validation errors
@@ -85,12 +85,23 @@ Validation rules:
 
 ### Requirement: Show candidate profile
 
-The system SHALL display a candidate's full profile at `GET /candidates/{candidate}`.
+The system SHALL display a candidate full profile at `GET /candidates/{candidate}` and provide an offer assignment dropdown.
 
-#### Scenario: View candidate profile
+#### Scenario: View candidate profile with offer assignment
 
 - **WHEN** an authenticated user navigates to `/candidates/1`
-- **THEN** they see the candidate's name, email, phone, and CV text
+- **THEN** they see the candidate name, email, phone, and CV text
+- **AND** an "Analyser pour une offre" section with a dropdown of all offers and an "Analyser" button
+
+#### Scenario: Successful assignment from candidate profile
+
+- **WHEN** a recruiter selects an offer from the dropdown and clicks "Analyser"
+- **THEN** the system creates an Application, dispatches AnalyseCandidateJob, and redirects to the offer show page
+
+#### Scenario: Duplicate assignment prevented
+
+- **WHEN** a recruiter selects an offer the candidate is already linked to
+- **THEN** the system displays a warning message and does not create a duplicate Application
 
 ### Requirement: Edit candidate
 
@@ -101,13 +112,13 @@ Validation rules SHALL be identical to creation.
 #### Scenario: Display edit form
 
 - **WHEN** an authenticated user navigates to `/candidates/1/edit`
-- **THEN** the form is pre-filled with the candidate's current data
+- **THEN** the form is pre-filled with the candidate current data
 
 #### Scenario: Successful update
 
 - **WHEN** the user modifies the name and submits
-- **THEN** the candidate's name is updated in the database
-- **AND** the user is redirected to the candidate's show page
+- **THEN** the candidate name is updated in the database
+- **AND** the user is redirected to the candidate show page
 
 ### Requirement: Delete candidate
 

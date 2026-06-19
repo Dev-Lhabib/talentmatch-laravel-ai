@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Enums\StatutCandidatureEnum;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\Analyse;
-use App\Models\Candidate;
+use App\Models\Application;
 use App\Models\Offre;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -72,32 +71,33 @@ class AuthController extends Controller
         $userId = Auth::id();
 
         $totalOffres = Offre::where('user_id', $userId)->count();
+        $offreIds = Offre::where('user_id', $userId)->pluck('id');
 
-        $totalCandidates = Candidate::where('user_id', $userId)->count();
+        $totalCandidates = Application::whereIn('offre_id', $offreIds)->count();
 
-        $analysesCompleted = Analyse::whereHas('candidate', fn ($q) => $q->where('user_id', $userId))
+        $analysesCompleted = Analyse::whereHas('application', fn ($q) => $q->whereIn('offre_id', $offreIds))
             ->where('matching_score', '>', 0)
             ->count();
 
-        $avgScore = Analyse::whereHas('candidate', fn ($q) => $q->where('user_id', $userId))
+        $avgScore = Analyse::whereHas('application', fn ($q) => $q->whereIn('offre_id', $offreIds))
             ->where('matching_score', '>', 0)
             ->avg('matching_score');
 
-        $recentCandidates = Candidate::where('user_id', $userId)
-            ->where('status', StatutCandidatureEnum::Completed)
-            ->with('offre', 'analyse')
+        $recentApplications = Application::whereIn('offre_id', $offreIds)
+            ->whereHas('analyse')
+            ->with('candidate', 'offre', 'analyse')
             ->latest()
             ->take(5)
             ->get();
 
         $recommandationCounts = [
-            'convoquer' => Analyse::whereHas('candidate', fn ($q) => $q->where('user_id', $userId))
+            'convoquer' => Analyse::whereHas('application', fn ($q) => $q->whereIn('offre_id', $offreIds))
                 ->where('recommandation', 'convoquer')
                 ->count(),
-            'attente' => Analyse::whereHas('candidate', fn ($q) => $q->where('user_id', $userId))
+            'attente' => Analyse::whereHas('application', fn ($q) => $q->whereIn('offre_id', $offreIds))
                 ->where('recommandation', 'attente')
                 ->count(),
-            'rejeter' => Analyse::whereHas('candidate', fn ($q) => $q->where('user_id', $userId))
+            'rejeter' => Analyse::whereHas('application', fn ($q) => $q->whereIn('offre_id', $offreIds))
                 ->where('recommandation', 'rejeter')
                 ->count(),
         ];
@@ -107,7 +107,7 @@ class AuthController extends Controller
             'totalCandidates',
             'analysesCompleted',
             'avgScore',
-            'recentCandidates',
+            'recentApplications',
             'recommandationCounts',
         ));
     }

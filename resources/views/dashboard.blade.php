@@ -41,29 +41,29 @@
             </div>
         </div>
 
-        @if ($recentCandidates->isNotEmpty())
+        @if ($recentApplications->isNotEmpty())
             <div class="mt-6 rounded-lg border border-border bg-card">
                 <div class="border-b border-border px-4 py-3">
                     <h2 class="text-sm font-semibold text-white">Dernières candidatures analysées</h2>
                 </div>
                 <div class="divide-y divide-border">
-                    @foreach ($recentCandidates as $candidate)
-                        <a href="{{ route("offres.candidatures.show", [$candidate->offre, $candidate]) }}"
+                    @foreach ($recentApplications as $application)
+                        <a href="{{ route("applications.show", $application) }}"
                            class="flex items-center justify-between px-4 py-3 transition hover:bg-bg/50">
                             <div>
-                                <p class="text-sm font-medium text-white">{{ $candidate->name }}</p>
-                                <p class="text-xs text-text-secondary">{{ $candidate->offre->titre }}</p>
+                                <p class="text-sm font-medium text-white">{{ $application->candidate->name }}</p>
+                                <p class="text-xs text-text-secondary">{{ $application->offre->titre }}</p>
                             </div>
                             <div class="flex items-center gap-2">
-                                @if ($candidate->analyse)
-                                    <span class="text-sm font-semibold {{ $candidate->analyse->matching_score >= 70 ? "text-green-400" : ($candidate->analyse->matching_score >= 40 ? "text-yellow-400" : "text-red-400") }}">
-                                        {{ $candidate->analyse->matching_score }}%
+                                @if ($application->analyse)
+                                    <span class="text-sm font-semibold {{ $application->analyse->matching_score >= 70 ? "text-green-400" : ($application->analyse->matching_score >= 40 ? "text-yellow-400" : "text-red-400") }}">
+                                        {{ $application->analyse->matching_score }}%
                                     </span>
                                     <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium
-                                        {{ $candidate->analyse->recommandation->value === "convoquer" ? "bg-green-900/50 text-green-300" : "" }}
-                                        {{ $candidate->analyse->recommandation->value === "attente" ? "bg-yellow-900/50 text-yellow-300" : "" }}
-                                        {{ $candidate->analyse->recommandation->value === "rejeter" ? "bg-red-900/50 text-red-300" : "" }}">
-                                        {{ $candidate->analyse->recommandation->value }}
+                                        {{ $application->analyse->recommandation->value === "convoquer" ? "bg-green-900/50 text-green-300" : "" }}
+                                        {{ $application->analyse->recommandation->value === "attente" ? "bg-yellow-900/50 text-yellow-300" : "" }}
+                                        {{ $application->analyse->recommandation->value === "rejeter" ? "bg-red-900/50 text-red-300" : "" }}">
+                                        {{ $application->analyse->recommandation->value }}
                                     </span>
                                 @endif
                             </div>

@@ -2,7 +2,7 @@
 
 @section("content")
     <div class="mb-4">
-        <a href="{{ route("offres.candidatures.show", [$offre, $application]) }}" class="text-sm text-accent hover:underline">← Retour à la candidature</a>
+        <a href="{{ route("applications.show", $application) }}" class="text-sm text-accent hover:underline">← Retour à la candidature</a>
     </div>
 
     <div class="mb-6 rounded-xl border border-border bg-card p-5">
