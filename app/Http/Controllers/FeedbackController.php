@@ -4,29 +4,33 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreFeedbackRequest;
+use App\Models\Candidate;
+use App\Models\Feedback;
+use App\Models\Offre;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class FeedbackController extends Controller
 {
     public function show(): View
     {
-        return view('feedback.show');
+        return view('feedback.show', [
+            'offres' => Offre::where('user_id', auth()->id())->latest()->get(),
+            'candidates' => Candidate::orderBy('name')->get(),
+        ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreFeedbackRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'subject' => 'required|string|max:255',
-            'message' => 'required|string|min:10|max:2000',
-        ]);
-
-        // Log feedback for now (no DB table needed yet)
-        \Log::info('User feedback', [
+        Feedback::create([
             'user_id' => auth()->id(),
-            'subject' => $validated['subject'],
-            'message' => $validated['message'],
+            'type' => $request->validated('type'),
+            'offre_id' => $request->validated('offre_id'),
+            'candidate_id' => $request->validated('candidate_id'),
+            'sujet' => $request->validated('sujet'),
+            'message' => $request->validated('message'),
+            'priorite' => $request->validated('priorite', 'medium'),
         ]);
 
         return redirect()->route('feedback.show')->with('success', 'Merci pour votre retour !');
