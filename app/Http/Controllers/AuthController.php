@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Enums\StatutCandidatureEnum;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\Analyse;
 use App\Models\Application;
+use App\Models\Candidate;
 use App\Models\Offre;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -69,21 +71,32 @@ class AuthController extends Controller
     public function dashboard(): View
     {
         $userId = Auth::id();
-
-        $totalOffres = Offre::where('user_id', $userId)->count();
         $offreIds = Offre::where('user_id', $userId)->pluck('id');
 
-        $totalCandidates = Application::whereIn('offre_id', $offreIds)->count();
+        $totalOffres = Offre::where('user_id', $userId)->count();
+        $totalOffresGlobal = Offre::count();
+        $totalCandidats = Candidate::count();
 
         $analysesCompleted = Analyse::whereHas('application', fn ($q) => $q->whereIn('offre_id', $offreIds))
             ->where('matching_score', '>', 0)
+            ->count();
+
+        $analysesEnAttente = Application::whereIn('offre_id', $offreIds)
+            ->whereIn('status', [StatutCandidatureEnum::Pending, StatutCandidatureEnum::Processing])
             ->count();
 
         $avgScore = Analyse::whereHas('application', fn ($q) => $q->whereIn('offre_id', $offreIds))
             ->where('matching_score', '>', 0)
             ->avg('matching_score');
 
-        $recentApplications = Application::whereIn('offre_id', $offreIds)
+        $recentOffres = Offre::where('user_id', $userId)
+            ->withCount('applications')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        $recentCompletedAnalyses = Application::whereIn('offre_id', $offreIds)
+            ->where('status', StatutCandidatureEnum::Completed)
             ->whereHas('analyse')
             ->with('candidate', 'offre', 'analyse')
             ->latest()
@@ -104,10 +117,13 @@ class AuthController extends Controller
 
         return view('dashboard', compact(
             'totalOffres',
-            'totalCandidates',
+            'totalOffresGlobal',
+            'totalCandidats',
             'analysesCompleted',
+            'analysesEnAttente',
             'avgScore',
-            'recentApplications',
+            'recentOffres',
+            'recentCompletedAnalyses',
             'recommandationCounts',
         ));
     }
