@@ -7,6 +7,7 @@ use App\Http\Controllers\CandidatureController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\OfferController;
 use App\Http\Controllers\OffreController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
 
     Route::resource('candidates', CandidateController::class);
+    Route::resource('offers', OfferController::class);
     Route::resource('offres', OffreController::class);
     Route::resource('offres.candidatures', CandidatureController::class)->only(['store', 'show', 'destroy']);
     Route::get('/offres/{offre}/candidatures/{candidature}/chat', [ChatController::class, 'show'])->name('chat.show');
