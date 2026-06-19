@@ -65,7 +65,7 @@
                     <p class="text-xs text-text-secondary truncate">En file d'attente</p>
                 </div>
             </div>
-            <p class="mt-1 text-xs text-text-secondary/60 truncate">En attente de l'IA</p>
+            <p class="mt-1 text-xs text-text-secondary/60 truncate">Analyses pas encore lancées</p>
         </div>
 
         <div class="flex flex-col rounded-lg border border-border bg-card p-3 border-l-4 border-l-[#dc4a3c]">
@@ -158,7 +158,7 @@
                     <p class="text-xs text-text-secondary truncate">À recontacter</p>
                 </div>
             </div>
-            <p class="mt-1 text-xs text-text-secondary/60 truncate">En attente de décision</p>
+            <p class="mt-1 text-xs text-text-secondary/60 truncate">Décision à prendre</p>
         </div>
 
         <div class="flex flex-col rounded-lg border border-border bg-card p-3 border-l-4 border-l-[#dc4a3c]">
@@ -170,7 +170,7 @@
                 </div>
                 <div class="min-w-0">
                     <p class="text-lg font-bold text-white truncate">{{ $nonRetenu }}</p>
-                    <p class="text-xs text-text-secondary truncate">Non retenu</p>
+                    <p class="text-xs text-text-secondary truncate">Rejeté</p>
                 </div>
             </div>
             <p class="mt-1 text-xs text-text-secondary/60 truncate">Candidats refusés</p>
