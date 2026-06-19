@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Enums\RecommandationEnum;
 use App\Enums\StatutCandidatureEnum;
 use App\Models\Application;
 use App\Models\Comparison;
@@ -22,14 +23,17 @@ class ComparisonsController extends Controller
             'application2_id' => 'required|exists:applications,id|different:application1_id',
         ]);
 
-        $app1 = Application::with('candidate', 'analyse', 'offre')->findOrFail((int) $validated['application1_id']);
-        $app2 = Application::with('candidate', 'analyse', 'offre')->findOrFail((int) $validated['application2_id']);
+        $app1 = Application::with('candidate', 'offre')->findOrFail((int) $validated['application1_id']);
+        $app2 = Application::with('candidate', 'offre')->findOrFail((int) $validated['application2_id']);
+
+        $app1->loadMissing('analyse');
+        $app2->loadMissing('analyse');
 
         abort_if($app1->offre->user_id !== auth()->id(), 403);
         abort_if($app2->offre->user_id !== auth()->id(), 403);
         abort_if($app1->offre_id !== $app2->offre_id, 422, 'Les deux candidatures doivent appartenir à la même offre.');
-        abort_if($app1->status !== StatutCandidatureEnum::Completed || ! $app1->analyse, 422, 'La première candidature n\'est pas encore analysée.');
-        abort_if($app2->status !== StatutCandidatureEnum::Completed || ! $app2->analyse, 422, 'La deuxième candidature n\'est pas encore analysée.');
+        abort_if(! $app1->analyse || $app1->analyse->matching_score === null, 422, 'La première candidature n\'est pas encore analysée.');
+        abort_if(! $app2->analyse || $app2->analyse->matching_score === null, 422, 'La deuxième candidature n\'est pas encore analysée.');
 
         $offre = $app1->offre;
         $requiredSkills = $offre->required_skills ?? [];
@@ -56,13 +60,17 @@ class ComparisonsController extends Controller
                 'winner_reason' => $json['winner_reason'] ?? 'Analyse non disponible.',
             ]);
         } catch (\Throwable) {
+            $score1 = $app1->analyse?->matching_score ?? 0;
+            $score2 = $app2->analyse?->matching_score ?? 0;
+            $fallbackWinnerId = $score1 >= $score2 ? $app1->id : $app2->id;
+
             $comparison = Comparison::create([
                 'offre_id' => $offre->id,
                 'application1_id' => $app1->id,
                 'application2_id' => $app2->id,
                 'candidate1_verdict' => 'L\'analyse IA est temporairement indisponible.',
                 'candidate2_verdict' => 'L\'analyse IA est temporairement indisponible.',
-                'winner_id' => $app1->id,
+                'winner_id' => $fallbackWinnerId,
                 'winner_reason' => 'L\'analyse IA est temporairement indisponible.',
             ]);
         }
@@ -72,7 +80,7 @@ class ComparisonsController extends Controller
 
     public function show(Comparison $comparison): View
     {
-        $comparison->load(['offre', 'application1.candidate', 'application1.analyse', 'application2.candidate', 'application2.analyse']);
+        $comparison->load(['offre', 'application1.candidate', 'application1.analyse', 'application1.offre', 'application2.candidate', 'application2.analyse', 'application2.offre']);
 
         abort_if($comparison->offre->user_id !== auth()->id(), 403);
 
@@ -156,5 +164,33 @@ PROMPT;
         $requiredLower = array_map('mb_strtolower', $requiredSkills);
 
         return array_values(array_filter($candidateSkills, fn ($skill) => ! in_array(mb_strtolower($skill), $requiredLower, true)));
+    }
+
+    public function convoquer(Comparison $comparison): RedirectResponse
+    {
+        $comparison->load(['offre', 'application1.analyse', 'application2.analyse']);
+
+        abort_if($comparison->offre->user_id !== auth()->id(), 403);
+
+        $winner = $comparison->winner_id === $comparison->application1_id
+            ? $comparison->application1
+            : $comparison->application2;
+
+        $loser = $comparison->winner_id === $comparison->application1_id
+            ? $comparison->application2
+            : $comparison->application1;
+
+        $winner->analyse->recommandation = RecommandationEnum::Convoquer;
+        $winner->status = StatutCandidatureEnum::Completed;
+        $winner->analyse->save();
+        $winner->save();
+
+        $loser->analyse->recommandation = RecommandationEnum::Rejeter;
+        $loser->status = StatutCandidatureEnum::Completed;
+        $loser->analyse->save();
+        $loser->save();
+
+        return redirect()->route('offres.show', $comparison->offre)
+            ->with('success', 'Candidat convoqué avec succès');
     }
 }

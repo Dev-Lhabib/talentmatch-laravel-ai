@@ -192,18 +192,43 @@
                                     </p>
                                 </div>
                                 <div class="text-right">
-                                    @if($application->analyse)
+                                    @if($application->analyse && $application->status->value === 'completed')
                                         <span class="text-lg font-bold text-white">{{ $application->analyse->matching_score }}/100</span>
                                         <br>
                                         <x-status-badge :status="$application->analyse->recommandation->value" />
-                                    @elseif($application->status->value === "failed")
-                                        <span class="rounded bg-accent/20 px-2 py-0.5 text-xs text-accent">⚠️ Échouée</span>
                                     @else
-                                        <span class="text-sm text-text-secondary">En attente</span>
+                                        <x-status-badge :status="$application->status->value" />
                                     @endif
                                 </div>
                             </div>
                         </a>
+                        <div class="ml-2 flex flex-col gap-1.5">
+                            @if(in_array($application->status->value, ['pending', 'failed']))
+                                <form method="POST" action="{{ route('applications.retry', $application) }}">
+                                    @csrf
+                                    <button type="submit" class="inline-flex items-center gap-1 rounded bg-teal/10 px-2 py-1 text-xs text-teal transition hover:bg-teal/20">
+                                        ▶ Analyser
+                                    </button>
+                                </form>
+                            @elseif($application->status->value === 'processing')
+                                <form method="POST" action="{{ route('applications.retry', $application) }}">
+                                    @csrf
+                                    <button type="submit" class="inline-flex items-center gap-1 rounded bg-yellow-600/10 px-2 py-1 text-xs text-yellow-500 transition hover:bg-yellow-600/20">
+                                        🔄 Réessayer
+                                    </button>
+                                </form>
+                            @elseif($application->status->value === 'completed')
+                                <form method="POST" action="{{ route('applications.retry', $application) }}">
+                                    @csrf
+                                    <button type="submit" class="inline-flex items-center gap-1 rounded bg-teal/10 px-2 py-1 text-xs text-teal transition hover:bg-teal/20">
+                                        🔄 Réanalyser
+                                    </button>
+                                </form>
+                            @endif
+                            <a href="{{ route('candidates.edit', $application->candidate) }}" class="inline-flex items-center gap-1 rounded bg-bg px-2 py-1 text-xs text-text-secondary transition hover:text-white">
+                                ✏️ CV
+                            </a>
+                        </div>
                     </div>
                 @endforeach
             </div>

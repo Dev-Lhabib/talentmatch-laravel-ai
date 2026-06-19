@@ -24,18 +24,16 @@
     <div class="mb-6 rounded-xl border border-border bg-card p-5">
         <h2 class="mb-3 text-sm font-semibold text-white">Statut</h2>
         <div class="flex items-center gap-3">
-            @if($application->analyse)
+            @if($application->analyse && $application->status->value === 'completed')
                 <x-status-badge :status="$application->analyse->recommandation->value" />
                 <span class="text-lg font-bold text-white">{{ $application->analyse->matching_score }}/100</span>
-            @elseif($application->status->value === "failed")
-                <span class="rounded bg-accent/20 px-2 py-0.5 text-xs text-accent">⚠️ Analyse échouée</span>
             @else
-                <span class="rounded bg-bg px-2 py-0.5 text-xs text-text-secondary border border-border">🔄 Analyse en cours</span>
+                <x-status-badge :status="$application->status->value" />
             @endif
         </div>
     </div>
 
-    @if($application->analyse)
+    @if($application->analyse && $application->status->value === 'completed')
         <div class="mb-6 rounded-xl border border-border bg-card p-5">
             <h2 class="mb-4 text-sm font-semibold text-white">Analyse IA</h2>
 

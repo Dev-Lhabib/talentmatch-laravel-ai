@@ -58,4 +58,5 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/comparisons/create', [ComparisonsController::class, 'create'])->name('comparisons.create');
     Route::get('/comparisons/{comparison}', [ComparisonsController::class, 'show'])->name('comparisons.show');
+    Route::post('/comparisons/{comparison}/convoquer', [ComparisonsController::class, 'convoquer'])->name('comparisons.convoquer');
 });

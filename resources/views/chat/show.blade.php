@@ -13,7 +13,7 @@
                     Offre : {{ $offre->titre }}
                 </p>
             </div>
-            @if($application->analyse)
+            @if($application->analyse && $application->status->value === 'completed')
                 <div class="text-right">
                     <x-status-badge :status="$application->analyse->recommandation->value" />
                     <span class="ml-2 text-sm font-bold text-white">{{ $application->analyse->matching_score }}/100</span>

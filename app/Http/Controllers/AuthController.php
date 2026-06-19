@@ -115,7 +115,7 @@ class AuthController extends Controller
         $userId = Auth::id();
         $offreIds = Offre::where('user_id', $userId)->pluck('id');
 
-        $totalCandidats = Candidate::count();
+        $totalCandidats = Candidate::whereHas('applications', fn ($q) => $q->whereIn('offre_id', $offreIds))->count();
 
         $totalOffres = Offre::where('user_id', $userId)->count();
 

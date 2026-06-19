@@ -43,7 +43,7 @@ class CandidateController extends Controller
 
     public function show(Candidate $candidate): View
     {
-        $offres = Offre::latest()->get();
+        $offres = Offre::where('user_id', auth()->id())->latest()->get();
 
         return view('candidates.show', compact('candidate', 'offres'));
     }
@@ -71,7 +71,7 @@ class CandidateController extends Controller
 
     public function assign(Request $request, Candidate $candidate): RedirectResponse
     {
-        $offre = Offre::findOrFail((int) $request->input('offre_id'));
+        $offre = Offre::where('user_id', auth()->id())->findOrFail((int) $request->input('offre_id'));
 
         $existing = Application::where('candidate_id', $candidate->id)
             ->where('offre_id', $offre->id)

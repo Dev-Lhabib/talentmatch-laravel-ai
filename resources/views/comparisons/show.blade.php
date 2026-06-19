@@ -171,7 +171,7 @@
 
     {{-- Actions --}}
     <div class="mt-6 flex items-center justify-center gap-4">
-        <form method="POST" action="{{ route('applications.retry', $winnerApp) }}" class="inline">
+        <form method="POST" action="{{ route('comparisons.convoquer', $comparison) }}" class="inline">
             @csrf
             <button type="submit" class="rounded-lg bg-teal px-5 py-2.5 text-sm font-medium text-white transition hover:bg-teal/80">
                 ✅ Convoquer {{ $winnerApp->candidate->name }}

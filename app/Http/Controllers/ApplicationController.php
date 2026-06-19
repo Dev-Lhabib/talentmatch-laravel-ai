@@ -59,6 +59,7 @@ class ApplicationController extends Controller
 
     public function retry(Application $application): RedirectResponse
     {
+        $application->analyse?->delete();
         $application->update(['status' => StatutCandidatureEnum::Pending]);
 
         AnalyseCandidatJob::dispatch($application);

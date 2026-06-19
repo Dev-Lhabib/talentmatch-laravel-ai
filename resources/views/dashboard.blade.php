@@ -62,10 +62,10 @@
                 </div>
                 <div class="min-w-0">
                     <p class="text-lg font-bold text-white truncate">{{ $analysesEnAttente }}</p>
-                    <p class="text-xs text-text-secondary truncate">Analyses en attente</p>
+                    <p class="text-xs text-text-secondary truncate">En file d'attente</p>
                 </div>
             </div>
-            <p class="mt-1 text-xs text-text-secondary/60 truncate">En file d'attente</p>
+            <p class="mt-1 text-xs text-text-secondary/60 truncate">En attente de l'IA</p>
         </div>
 
         <div class="flex flex-col rounded-lg border border-border bg-card p-3 border-l-4 border-l-[#dc4a3c]">
@@ -155,10 +155,10 @@
                 </div>
                 <div class="min-w-0">
                     <p class="text-lg font-bold text-white truncate">{{ $enAttenteRecommandation }}</p>
-                    <p class="text-xs text-text-secondary truncate">En attente</p>
+                    <p class="text-xs text-text-secondary truncate">À recontacter</p>
                 </div>
             </div>
-            <p class="mt-1 text-xs text-text-secondary/60 truncate">À recontacter</p>
+            <p class="mt-1 text-xs text-text-secondary/60 truncate">En attente de décision</p>
         </div>
 
         <div class="flex flex-col rounded-lg border border-border bg-card p-3 border-l-4 border-l-[#dc4a3c]">
@@ -229,7 +229,7 @@
                                 <p class="mt-0.5 truncate text-xs text-text-secondary">{{ $application->offre->titre }}</p>
                             </div>
                             <div class="ml-3 flex items-center gap-2">
-                                @if ($application->analyse)
+                                @if ($application->analyse && $application->status->value === 'completed')
                                     <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold
                                         {{ $application->analyse->matching_score >= 70 ? 'bg-green-900/50 text-green-300' : '' }}
                                         {{ $application->analyse->matching_score >= 40 && $application->analyse->matching_score < 70 ? 'bg-yellow-900/50 text-yellow-300' : '' }}

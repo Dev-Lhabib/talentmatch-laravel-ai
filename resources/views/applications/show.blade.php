@@ -98,7 +98,7 @@
                         </button>
                     </form>
                 </div>
-            @elseif($application->status->value === "analysing")
+            @elseif($application->status->value === "processing")
                 <div class="flex items-center justify-center gap-3 rounded-xl border border-border bg-card p-8">
                     <svg class="h-6 w-6 animate-spin text-teal" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
@@ -106,14 +106,14 @@
                     </svg>
                     <p class="text-sm text-text-secondary">Analyse en cours...</p>
                 </div>
-            @elseif($application->status->value === "pending" && !$analyse)
+            @elseif($application->status->value === "pending")
                 <div class="rounded-xl border border-border bg-card p-8 text-center">
                     <p class="text-sm text-text-secondary">Pas encore analysé</p>
                 </div>
             @endif
 
             {{-- Analysis Data --}}
-            @if($analyse)
+            @if($analyse && $application->status->value === 'completed')
                 {{-- Score Ring + Recommendation --}}
                 <div class="flex items-center gap-8 rounded-xl border border-border bg-card p-6">
                     <div class="relative flex items-center justify-center">
