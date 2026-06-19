@@ -18,7 +18,7 @@ class OffreController extends Controller
     public function index(Request $request): View
     {
         $offres = Offre::where('user_id', Auth::id())
-            ->withCount('candidatures')
+            ->withCount('candidates')
             ->latest()
             ->paginate(15);
 
@@ -56,11 +56,11 @@ class OffreController extends Controller
     {
         $this->authorize('view', $offre);
 
-        $offre->load('competences')->loadCount('candidatures');
+        $offre->load('competences')->loadCount('candidates');
 
         $offre->load([
-            'candidatures' => fn ($q) => $q->orderedByScore(),
-            'candidatures.analyse' => fn ($q) => $q->select('candidature_id', 'matching_score', 'recommandation'),
+            'candidates' => fn ($q) => $q->orderedByScore(),
+            'candidates.analyse' => fn ($q) => $q->select('candidate_id', 'matching_score', 'recommandation'),
         ]);
 
         return view('offres.show', compact('offre'));

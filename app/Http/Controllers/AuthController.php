@@ -8,7 +8,7 @@ use App\Enums\StatutCandidatureEnum;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\Analyse;
-use App\Models\Candidature;
+use App\Models\Candidate;
 use App\Models\Offre;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -73,17 +73,17 @@ class AuthController extends Controller
 
         $totalOffres = Offre::where('user_id', $userId)->count();
 
-        $totalCandidatures = Candidature::where('user_id', $userId)->count();
+        $totalCandidates = Candidate::where('user_id', $userId)->count();
 
-        $analysesCompleted = Analyse::whereHas('candidature', fn ($q) => $q->where('user_id', $userId))
+        $analysesCompleted = Analyse::whereHas('candidate', fn ($q) => $q->where('user_id', $userId))
             ->where('matching_score', '>', 0)
             ->count();
 
-        $avgScore = Analyse::whereHas('candidature', fn ($q) => $q->where('user_id', $userId))
+        $avgScore = Analyse::whereHas('candidate', fn ($q) => $q->where('user_id', $userId))
             ->where('matching_score', '>', 0)
             ->avg('matching_score');
 
-        $recentCandidatures = Candidature::where('user_id', $userId)
+        $recentCandidates = Candidate::where('user_id', $userId)
             ->where('status', StatutCandidatureEnum::Completed)
             ->with('offre', 'analyse')
             ->latest()
@@ -91,23 +91,23 @@ class AuthController extends Controller
             ->get();
 
         $recommandationCounts = [
-            'convoquer' => Analyse::whereHas('candidature', fn ($q) => $q->where('user_id', $userId))
+            'convoquer' => Analyse::whereHas('candidate', fn ($q) => $q->where('user_id', $userId))
                 ->where('recommandation', 'convoquer')
                 ->count(),
-            'attente' => Analyse::whereHas('candidature', fn ($q) => $q->where('user_id', $userId))
+            'attente' => Analyse::whereHas('candidate', fn ($q) => $q->where('user_id', $userId))
                 ->where('recommandation', 'attente')
                 ->count(),
-            'rejeter' => Analyse::whereHas('candidature', fn ($q) => $q->where('user_id', $userId))
+            'rejeter' => Analyse::whereHas('candidate', fn ($q) => $q->where('user_id', $userId))
                 ->where('recommandation', 'rejeter')
                 ->count(),
         ];
 
         return view('dashboard', compact(
             'totalOffres',
-            'totalCandidatures',
+            'totalCandidates',
             'analysesCompleted',
             'avgScore',
-            'recentCandidatures',
+            'recentCandidates',
             'recommandationCounts',
         ));
     }

@@ -9,14 +9,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class Candidature extends Model
+class Candidate extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'offre_id',
         'user_id',
-        'nom_candidat',
+        'name',
+        'email',
+        'phone',
         'cv_text',
         'status',
     ];
@@ -40,20 +42,20 @@ class Candidature extends Model
 
     public function analyse(): HasOne
     {
-        return $this->hasOne(Analyse::class);
+        return $this->hasOne(Analyse::class, 'candidate_id');
     }
 
     public function conversation(): HasOne
     {
-        return $this->hasOne(Conversation::class);
+        return $this->hasOne(Conversation::class, 'candidate_id');
     }
 
     public function scopeOrderedByScore(Builder $query): Builder
     {
         return $query
-            ->leftJoin('analyses', 'analyses.candidature_id', '=', 'candidatures.id')
+            ->leftJoin('analyses', 'analyses.candidate_id', '=', 'candidates.id')
             ->orderByDesc('analyses.matching_score')
-            ->orderBy('candidatures.created_at')
-            ->select('candidatures.*');
+            ->orderBy('candidates.created_at')
+            ->select('candidates.*');
     }
 }

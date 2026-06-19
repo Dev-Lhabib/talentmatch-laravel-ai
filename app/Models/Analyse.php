@@ -13,7 +13,7 @@ class Analyse extends Model
     use HasFactory;
 
     protected $fillable = [
-        'candidature_id',
+        'candidate_id',
         'competences_extraites',
         'annees_experience',
         'niveau_etudes',
@@ -42,9 +42,9 @@ class Analyse extends Model
         ];
     }
 
-    public function candidature(): BelongsTo
+    public function candidate(): BelongsTo
     {
-        return $this->belongsTo(Candidature::class);
+        return $this->belongsTo(Candidate::class);
     }
 
     public function competences(): BelongsToMany

@@ -6,7 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SoumettreCandidatureRequest;
 use App\Jobs\AnalyseCandidatJob;
-use App\Models\Candidature;
+use App\Models\Candidate;
 use App\Models\Offre;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -20,36 +20,36 @@ class CandidatureController extends Controller
 
         $validated = $request->validated();
 
-        $candidature = Candidature::create([
+        $candidate = Candidate::create([
             'offre_id' => $offre->id,
             'user_id' => Auth::id(),
-            'nom_candidat' => $validated['nom_candidat'],
+            'name' => $validated['nom_candidat'],
             'cv_text' => $validated['cv_text'],
             'status' => 'pending',
         ]);
 
         if (class_exists(AnalyseCandidatJob::class)) {
-            AnalyseCandidatJob::dispatch($candidature);
+            AnalyseCandidatJob::dispatch($candidate);
         }
 
         return redirect()->route('offres.show', $offre)
             ->with('success', 'Analyse en cours…');
     }
 
-    public function show(Offre $offre, Candidature $candidature): View
+    public function show(Offre $offre, Candidate $candidate): View
     {
-        $this->authorize('view', $candidature);
+        $this->authorize('view', $candidate);
 
-        $candidature->load('analyse');
+        $candidate->load('analyse');
 
-        return view('candidatures.show', compact('offre', 'candidature'));
+        return view('candidatures.show', compact('offre', 'candidate'));
     }
 
-    public function destroy(Offre $offre, Candidature $candidature): RedirectResponse
+    public function destroy(Offre $offre, Candidate $candidate): RedirectResponse
     {
-        $this->authorize('delete', $candidature);
+        $this->authorize('delete', $candidate);
 
-        $candidature->delete();
+        $candidate->delete();
 
         return redirect()->route('offres.show', $offre);
     }

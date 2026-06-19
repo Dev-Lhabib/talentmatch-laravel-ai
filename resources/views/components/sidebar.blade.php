@@ -36,6 +36,13 @@
             </svg>
         </a>
 
+        {{-- Users / Candidats (standalone) --}}
+        <a href="{{ route('candidates.index') }}" class="flex h-10 w-10 items-center justify-center rounded-lg {{ request()->routeIs('candidates.*') ? 'bg-accent text-white' : 'text-text-secondary' }} transition hover:bg-card hover:text-white" title="Candidats (portefeuille)">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+        </a>
+
         {{-- Briefcase / Offres --}}
         <a href="{{ route('offres.index') }}" class="flex h-10 w-10 items-center justify-center rounded-lg {{ request()->routeIs('offres.*') ? 'bg-accent text-white' : 'text-text-secondary' }} transition hover:bg-card hover:text-white" title="Offres">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

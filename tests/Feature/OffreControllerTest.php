@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Models\Candidature;
+use App\Models\Candidate;
 use App\Models\Competence;
 use App\Models\Offre;
 use App\Models\User;
@@ -49,11 +49,11 @@ class OffreControllerTest extends TestCase
             ->assertDontSee('Offre privée');
     }
 
-    public function test_index_displays_candidature_count(): void
+    public function test_index_displays_candidate_count(): void
     {
         $offre = Offre::factory()->for($this->user)->create();
-        Candidature::factory()->for($offre)->for($this->user)->create();
-        Candidature::factory()->for($offre)->for($this->user)->create();
+        Candidate::factory()->for($offre)->for($this->user)->create();
+        Candidate::factory()->for($offre)->for($this->user)->create();
 
         $this->actingAs($this->user)
             ->get(route('offres.index'))
@@ -146,11 +146,11 @@ class OffreControllerTest extends TestCase
             ->assertSee('Laravel');
     }
 
-    public function test_show_displays_candidature_with_score(): void
+    public function test_show_displays_candidate_with_score(): void
     {
         $offre = Offre::factory()->for($this->user)->create();
-        $candidature = Candidature::factory()->for($offre)->for($this->user)->create();
-        $candidature->analyse()->create([
+        $candidate = Candidate::factory()->for($offre)->for($this->user)->create();
+        $candidate->analyse()->create([
             'matching_score' => 85,
             'recommandation' => 'convoquer',
             'competences_extraites' => [],
@@ -169,7 +169,7 @@ class OffreControllerTest extends TestCase
     public function test_show_displays_pending_badge(): void
     {
         $offre = Offre::factory()->for($this->user)->create();
-        Candidature::factory()->for($offre)->for($this->user)->create();
+        Candidate::factory()->for($offre)->for($this->user)->create();
 
         $this->actingAs($this->user)
             ->get(route('offres.show', $offre))

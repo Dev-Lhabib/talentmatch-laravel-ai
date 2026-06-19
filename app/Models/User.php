@@ -35,9 +35,9 @@ class User extends Authenticatable
         return $this->hasMany(Offre::class);
     }
 
-    public function candidatures(): HasMany
+    public function candidates(): HasMany
     {
-        return $this->hasMany(Candidature::class);
+        return $this->hasMany(Candidate::class);
     }
 
     public function conversations(): HasMany

@@ -12,14 +12,14 @@ class Conversation extends Model
     use HasFactory;
 
     protected $fillable = [
-        'candidature_id',
+        'candidate_id',
         'user_id',
         'title',
     ];
 
-    public function candidature(): BelongsTo
+    public function candidate(): BelongsTo
     {
-        return $this->belongsTo(Candidature::class);
+        return $this->belongsTo(Candidate::class);
     }
 
     public function user(): BelongsTo

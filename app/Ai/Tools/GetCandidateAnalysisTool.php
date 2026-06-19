@@ -4,31 +4,31 @@ declare(strict_types=1);
 
 namespace App\Ai\Tools;
 
-use App\Models\Candidature;
+use App\Models\Candidate;
 
 class GetCandidateAnalysisTool
 {
     public function __invoke(int $candidatId): array|string
     {
-        $candidature = Candidature::with('analyse', 'offre')
+        $candidate = Candidate::with('analyse', 'offre')
             ->where('id', $candidatId)
             ->where('user_id', auth()->id())
             ->first();
 
-        if (! $candidature) {
-            return 'Candidature introuvable ou accès non autorisé.';
+        if (! $candidate) {
+            return 'Candidat introuvable ou accès non autorisé.';
         }
 
-        if (! $candidature->analyse) {
-            return 'L\'analyse de cette candidature n\'est pas encore disponible '
-                 ."(statut : {$candidature->status->value}).";
+        if (! $candidate->analyse) {
+            return "L'analyse de ce candidat n'est pas encore disponible "
+                 ."(statut : {$candidate->status->value}).";
         }
 
-        $a = $candidature->analyse;
+        $a = $candidate->analyse;
 
         return [
-            'candidat' => $candidature->nom_candidat,
-            'offre' => $candidature->offre->titre,
+            'candidat' => $candidate->name,
+            'offre' => $candidate->offre->titre,
             'matching_score' => $a->matching_score,
             'recommandation' => $a->recommandation->value,
             'justification' => $a->justification,

@@ -7,7 +7,7 @@ namespace App\Jobs;
 use App\Enums\RecommandationEnum;
 use App\Enums\StatutCandidatureEnum;
 use App\Models\Analyse;
-use App\Models\Candidature;
+use App\Models\Candidate;
 use App\Services\AnalyseCandidatService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -26,20 +26,20 @@ class AnalyseCandidatJob implements ShouldQueue
     public int $backoff = 5;
 
     public function __construct(
-        public Candidature $candidature,
+        public Candidate $candidate,
     ) {}
 
     public function handle(AnalyseCandidatService $service): void
     {
-        $this->candidature->update(['status' => StatutCandidatureEnum::Processing]);
+        $this->candidate->update(['status' => StatutCandidatureEnum::Processing]);
 
         $provider = config('ai.default', 'groq');
         $apiKeyEnv = strtoupper($provider).'_API_KEY';
 
         if (! env($apiKeyEnv)) {
-            $this->candidature->update(['status' => StatutCandidatureEnum::Failed]);
+            $this->candidate->update(['status' => StatutCandidatureEnum::Failed]);
             Log::error('AnalyseCandidatJob: AI provider API key not configured', [
-                'candidature_id' => $this->candidature->id,
+                'candidate_id' => $this->candidate->id,
                 'provider' => $provider,
                 'expected_env_var' => $apiKeyEnv,
             ]);
@@ -48,10 +48,10 @@ class AnalyseCandidatJob implements ShouldQueue
         }
 
         try {
-            $result = $service->analyser($this->candidature);
+            $result = $service->analyser($this->candidate);
 
             Analyse::create([
-                'candidature_id' => $this->candidature->id,
+                'candidate_id' => $this->candidate->id,
                 'competences_extraites' => $result->get('competences_extraites'),
                 'annees_experience' => $result->get('annees_experience'),
                 'niveau_etudes' => $result->get('niveau_etudes'),
@@ -65,19 +65,19 @@ class AnalyseCandidatJob implements ShouldQueue
                 'analyzed_at' => now(),
             ]);
 
-            $this->candidature->update(['status' => StatutCandidatureEnum::Completed]);
+            $this->candidate->update(['status' => StatutCandidatureEnum::Completed]);
         } catch (Throwable $e) {
             if ($this->attempts() >= $this->tries) {
-                $this->candidature->update(['status' => StatutCandidatureEnum::Failed]);
+                $this->candidate->update(['status' => StatutCandidatureEnum::Failed]);
                 Log::error('AnalyseCandidatJob failed — all retries exhausted', [
-                    'candidature_id' => $this->candidature->id,
+                    'candidate_id' => $this->candidate->id,
                     'attempts' => $this->attempts(),
                     'error_message' => $e->getMessage(),
                     'error_trace' => (string) $e,
                 ]);
             } else {
                 Log::warning('AnalyseCandidatJob failed — will retry', [
-                    'candidature_id' => $this->candidature->id,
+                    'candidate_id' => $this->candidate->id,
                     'attempts' => $this->attempts(),
                     'error_message' => $e->getMessage(),
                 ]);

@@ -1,7 +1,7 @@
 @props([
-    'candidature',
-    'analyse',
-    'candidatures' => collect(),
+    "candidate",
+    "analyse",
+    "allCandidates" => collect(),
 ])
 
 <div class="flex h-full flex-col rounded-xl border border-border bg-card">
@@ -11,22 +11,22 @@
             <div>
                 <h2 class="text-sm font-semibold text-white">Analyse du candidat</h2>
                 <p class="text-xs text-text-secondary">
-                    {{ $candidature->nom_candidat }} · Offre : {{ $candidature->offre->titre }}
+                    {{ $candidate->name }} · Offre : {{ $candidate->offre->titre }}
                 </p>
             </div>
 
-            @if($candidatures->count() > 1)
+            @if($allCandidates->count() > 1)
                 <div class="relative inline-block">
                     <select
                         onchange="window.location.href = this.value"
                         class="rounded-lg border border-border bg-card px-3 py-2 pr-8 text-sm text-white outline-none transition focus:border-accent focus:ring-1 focus:ring-accent"
                     >
-                        @foreach($candidatures as $candidateOption)
+                        @foreach($allCandidates as $candidateOption)
                             <option
-                                value="{{ route('dashboard.candidates', ['candidate' => $candidateOption->id]) }}"
-                                @selected($candidateOption->id === $candidature->id)
+                                value="{{ route("dashboard.candidates", ["candidate" => $candidateOption->id]) }}"
+                                @selected($candidateOption->id === $candidate->id)
                             >
-                                {{ $candidateOption->nom_candidat }}
+                                {{ $candidateOption->name }}
                             </option>
                         @endforeach
                     </select>
@@ -43,7 +43,7 @@
     {{-- Scrollable Content --}}
     <div class="flex-1 overflow-y-auto p-5">
         {{-- Candidate Card --}}
-        <x-candidate-card :candidature="$candidature" />
+        <x-candidate-card :candidate="$candidate" />
 
         @if($analyse)
             {{-- Score + Skills Row --}}

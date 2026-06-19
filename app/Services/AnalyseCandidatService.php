@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Ai\Agents\AnalyseCandidatAnalysisAgent;
-use App\Models\Candidature;
+use App\Models\Candidate;
 use Illuminate\Support\Collection;
 
 class AnalyseCandidatService
@@ -14,11 +14,11 @@ class AnalyseCandidatService
         private readonly AnalyseCandidatAnalysisAgent $agent,
     ) {}
 
-    public function analyser(Candidature $candidature): Collection
+    public function analyser(Candidate $candidate): Collection
     {
-        $offre = $candidature->offre;
+        $offre = $candidate->offre;
 
-        $prompt = $this->buildPrompt($offre, $candidature);
+        $prompt = $this->buildPrompt($offre, $candidate);
 
         $response = $this->agent->prompt($prompt);
 
@@ -36,7 +36,7 @@ class AnalyseCandidatService
         ]);
     }
 
-    private function buildPrompt($offre, Candidature $candidature): string
+    private function buildPrompt($offre, Candidate $candidate): string
     {
         $competences = $this->formatCompetences($offre->competences);
 
@@ -48,8 +48,8 @@ class AnalyseCandidatService
         Expérience minimum : {$offre->experience_min} an(s)
 
         ## CV du candidat
-        Nom : {$candidature->nom_candidat}
-        {$candidature->cv_text}
+        Nom : {$candidate->name}
+        {$candidate->cv_text}
 
         Analyse ce CV par rapport à l'offre et retourne UNIQUEMENT le JSON structuré conforme au schéma. N'utilise aucun outil.
         EOT;

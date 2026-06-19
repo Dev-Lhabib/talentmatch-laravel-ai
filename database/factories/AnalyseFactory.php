@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Database\Factories;
 
 use App\Models\Analyse;
-use App\Models\Candidature;
+use App\Models\Candidate;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +18,7 @@ class AnalyseFactory extends Factory
     public function definition(): array
     {
         return [
-            'candidature_id' => Candidature::factory(),
+            'candidate_id' => Candidate::factory(),
             'competences_extraites' => [],
             'annees_experience' => fake()->numberBetween(0, 15),
             'niveau_etudes' => fake()->randomElement(['Bac', 'Bac+2', 'Bac+3', 'Bac+5']),
