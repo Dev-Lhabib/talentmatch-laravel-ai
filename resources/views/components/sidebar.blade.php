@@ -2,9 +2,9 @@
 
 <aside class="fixed left-0 top-0 z-40 flex h-screen w-20 flex-col overflow-hidden bg-sidebar">
     {{-- Logo --}}
-    <div class="flex shrink-0 items-center justify-center py-4">
+    <a href="{{ route('dashboard') }}" class="flex shrink-0 items-center justify-center py-4">
         <span class="text-lg font-bold leading-none text-accent">TM</span>
-    </div>
+    </a>
 
     {{-- Navigation --}}
     <nav class="flex flex-1 flex-col items-center justify-center gap-4">
