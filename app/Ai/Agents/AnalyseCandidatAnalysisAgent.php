@@ -47,14 +47,36 @@ class AnalyseCandidatAnalysisAgent implements Agent, HasProviderOptions, HasStru
 
         Analyse le CV du candidat par rapport à l'offre d'emploi fournie.
         Évalue l'adéquation entre le profil du candidat et les exigences du poste.
-        
-        IMPORTANT : Pour le champ 'recommandation', tu DOIS utiliser EXACTEMENT l'une de ces trois valeurs :
-        - "convoquer" : si le candidat est fortement recommandé
-        - "attente" : si le candidat pourrait être viable mais nécessite plus d'investigation
-        - "rejeter" : si le candidat ne convient pas
-        
-        Retourne UNIQUEMENT une analyse structurée conforme au schéma JSON fourni.
-        N'utilise aucun outil externe. Ne pose pas de questions. Ne retourne que le JSON avec les bonnes valeurs d'enum.
+
+        Tu DOIS retourner UNIQUEMENT un objet JSON avec EXACTEMENT ces clés (ni plus, ni moins) :
+
+        {
+            "competences_extraites": ["PHP", "Laravel", ...],
+            "annees_experience": 5,
+            "niveau_etudes": "bac+5",
+            "langues": ["Français", "Anglais"],
+            "matching_score": 85,
+            "points_forts": ["Maîtrise Laravel", ...],
+            "lacunes": ["Pas d'expérience Docker", ...],
+            "competences_manquantes": ["Redis", ...],
+            "recommandation": "convoquer",
+            "justification": "Le candidat correspond parfaitement au profil..."
+        }
+
+        Règles par champ :
+        - competences_extraites : tableau de strings (liste des compétences du candidat)
+        - annees_experience : entier (nombre d'années, entre 0 et 50)
+        - niveau_etudes : UNE SEULE valeur parmi "bac", "bac+2", "bac+3", "bac+4", "bac+5", "doctorat", "non_specifie"
+        - langues : tableau de strings
+        - matching_score : entier entre 0 et 100
+        - points_forts : tableau de strings
+        - lacunes : tableau de strings
+        - competences_manquantes : tableau de strings
+        - recommandation : UNE SEULE valeur parmi "convoquer" (fortement recommandé), "attente" (viable mais à vérifier), "rejeter" (ne convient pas)
+        - justification : string expliquant la décision
+
+        IMPORTANT : Ne retourne RIEN d'autre que le JSON ci-dessus, sans texte avant ni après.
+        N'utilise aucun outil externe.
         EOT;
     }
 

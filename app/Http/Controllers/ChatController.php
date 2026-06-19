@@ -28,6 +28,7 @@ class ChatController extends Controller
         $messages = $conversation->messages()->orderBy('created_at')->get();
 
         $compareId = null;
+        $compareMessage = null;
         if ($request->has('compare')) {
             $compareId = (int) $request->input('compare');
             $compareCandidature = Candidature::where('id', $compareId)
@@ -37,10 +38,18 @@ class ChatController extends Controller
 
             if (! $compareCandidature || $compareCandidature->id === $candidature->id) {
                 $compareId = null;
+            } else {
+                $compareMessage = sprintf(
+                    'Compare le candidat %s (id: %d) avec le candidat %s (id: %d) sur la même offre.',
+                    $candidature->nom_candidat,
+                    $candidature->id,
+                    $compareCandidature->nom_candidat,
+                    $compareId,
+                );
             }
         }
 
-        return view('chat.show', compact('offre', 'candidature', 'conversation', 'messages', 'compareId'));
+        return view('chat.show', compact('offre', 'candidature', 'conversation', 'messages', 'compareId', 'compareMessage'));
     }
 
     public function store(
@@ -57,7 +66,11 @@ class ChatController extends Controller
             'content' => $request->validated('message'),
         ]);
 
-        $agent = new AnalyseCandidatAgent(conversation: $conversation);
+        $agent = new AnalyseCandidatAgent(
+            conversation: $conversation,
+            candidatureId: (int) $candidature->id,
+            offreId: (int) $offre->id,
+        );
         $response = $agent->prompt($request->validated('message'));
         $assistantText = trim((string) $response->text());
 

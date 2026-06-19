@@ -24,15 +24,15 @@ class AnalyseCandidatService
 
         return collect([
             'competences_extraites' => $response['competences_extraites'] ?? [],
-            'annees_experience' => $response['annees_experience'] ?? null,
-            'niveau_etudes' => $response['niveau_etudes'] ?? null,
+            'annees_experience' => $response['annees_experience'] ?? 0,
+            'niveau_etudes' => $response['niveau_etudes'] ?? 'non_specifie',
             'langues' => $response['langues'] ?? [],
-            'matching_score' => $response['matching_score'] ?? null,
-            'points_forts' => $response['points_forts'] ?? null,
-            'lacunes' => $response['lacunes'] ?? null,
+            'matching_score' => $response['matching_score'] ?? 0,
+            'points_forts' => $response['points_forts'] ?? [],
+            'lacunes' => $response['lacunes'] ?? [],
             'competences_manquantes' => $response['competences_manquantes'] ?? [],
-            'recommandation' => $response['recommandation'] ?? null,
-            'justification' => $response['justification'] ?? null,
+            'recommandation' => $response['recommandation'] ?? 'attente',
+            'justification' => $response['justification'] ?? 'Analyse non disponible.',
         ]);
     }
 

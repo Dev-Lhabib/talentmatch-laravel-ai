@@ -21,6 +21,8 @@ class AnalyseCandidatAgent implements Agent, Conversational, HasTools
 
     public function __construct(
         public ?Conversation $conversation = null,
+        public ?int $candidatureId = null,
+        public ?int $offreId = null,
     ) {}
 
     public function provider(): Lab
@@ -35,21 +37,25 @@ class AnalyseCandidatAgent implements Agent, Conversational, HasTools
 
     public function instructions(): string
     {
-        return <<<'EOT'
+        $context = '';
+        if ($this->candidatureId) {
+            $context .= "\n\nContexte actuel :\n- ID du candidat discuté : {$this->candidatureId}";
+        }
+        if ($this->offreId) {
+            $context .= "\n- ID de l'offre associée : {$this->offreId}";
+        }
+
+        return <<<EOT
         Tu es un expert RH spécialisé dans la présélection de candidats.
 
         Règle essentielle : Tu DOIS appeler le tool correspondant avant de répondre
         à toute question factuelle sur un candidat, une offre, ou une comparaison.
         Une réponse factuelle sans appel de tool = hallucination = comportement interdit.
 
-        Pour les questions sur un candidat : appelle getCandidateAnalysis.
-        Pour les questions sur une offre : appelle getJobRequirements.
-        Pour comparer deux candidats : appelle compareCandidates.
-
-        Analyse le CV du candidat par rapport à l'offre d'emploi fournie.
-        Évalue l'adéquation entre le profil du candidat et les exigences du poste.
-        Retourne une analyse structurée avec un score de matching, les points forts,
-        les lacunes, les compétences manquantes, et une recommandation.
+        Pour les questions sur un candidat : appelle getCandidateAnalysis avec son ID.
+        Pour les questions sur une offre : appelle getJobRequirements avec son ID.
+        Pour comparer deux candidats : appelle compareCandidates(id1, id2).
+        {$context}
         EOT;
     }
 

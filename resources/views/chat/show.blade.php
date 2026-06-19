@@ -65,7 +65,7 @@
                 minlength="2"
                 maxlength="2000"
                 class="flex-1 resize-none rounded-lg border border-teal-dark bg-transparent px-4 py-2.5 text-sm text-white placeholder-text-secondary outline-none transition focus:border-teal focus:ring-1 focus:ring-teal"
-            >{{ old('message', isset($compareId) && $compareId ? "Compare ce candidat avec le candidat #{$compareId}" : '') }}</textarea>
+            >{{ old('message', $compareMessage ?? '') }}</textarea>
             <button type="submit" class="self-end rounded-lg bg-teal px-4 py-2.5 text-sm font-medium text-white transition hover:bg-teal/80">
                 Envoyer
             </button>

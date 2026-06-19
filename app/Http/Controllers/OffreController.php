@@ -56,7 +56,7 @@ class OffreController extends Controller
     {
         $this->authorize('view', $offre);
 
-        $offre->load('competences');
+        $offre->load('competences')->loadCount('candidatures');
 
         $offre->load([
             'candidatures' => fn ($q) => $q->orderedByScore(),
